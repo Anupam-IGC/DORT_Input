@@ -1,0 +1,1006 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quadrature API &mdash; DORT R-Z Input Preparation API 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quadrature Plotting API" href="quadrature_plotting.html" />
+    <link rel="prev" title="Model API" href="model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DORT R-Z Input Preparation API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#minimal-example">Minimal example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#quadrature-stage">Quadrature stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#recommended-practice">Recommended practice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#current-import-model">Current import model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#documentation-dependencies">Documentation dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#read-the-docs">Read the Docs</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/mesh.html">Mesh Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#piecewise-uniform-segments">Piecewise-uniform segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#segment-by-number-of-cells">Segment by number of cells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#explicit-mesh-boundaries">Explicit mesh boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#useful-properties">Useful properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#array-convention">Array convention</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/materials.html">Materials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registering-materials">Registering materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registry-access">Registry access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#internal-material-ids-versus-dort-library-numbers">Internal material IDs versus DORT library numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/regions.html">Regions and Priority Filling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#rectangular-r-z-regions">Rectangular R-Z regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#cell-centre-membership">Cell-centre membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#background-material">Background material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#priority-model">Priority model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#equal-priority-overlap">Equal-priority overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/building.html">Building and Validating a Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#build-operations">Build operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#strict-region-bounds">Strict region bounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#unfilled-cells">Unfilled cells</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/inspection.html">Inspecting the Built Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#main-result-arrays">Main result arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#material-maps">Material maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#region-ownership">Region ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#inspecting-one-cell">Inspecting one cell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#cell-count-summaries">Cell-count summaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/plotting.html">Plotting and Visual Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#material-map">Material map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#region-map">Region map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#convenience-save-functions">Convenience save functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#recommended-verification">Recommended verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quadrature.html">Quadrature-Set Calculation and DORT Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#processing-position">Processing position</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#dort-directional-arrays">DORT directional arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#basic-validation">Basic validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#fixed-versus-variable-quadrature">Fixed versus variable quadrature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#compatibility-warning-for-non-classical-quadratures">Compatibility warning for non-classical quadratures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#documentation-integration">Documentation integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_writer.html">DORT Writer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policies">Zone policies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-region"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;region&quot;</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-material"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;material&quot;</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#generated-arrays">Generated arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#control-values">Control values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#writing-a-block-4-fragment">Writing a Block-4 fragment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_mapping.html">DORT Array Mapping and Ordering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#internal-array-layout">Internal array layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#serialization-order">Serialization order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#zone-to-material-mapping">Zone-to-material mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#validation-recommendation">Validation recommendation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/basic_model.html">Basic Model Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/external_material_numbers.html">Using DORT Cross-Section Material Numbers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#mesh.MeshAxis"><code class="docutils literal notranslate"><span class="pre">MeshAxis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.name"><code class="docutils literal notranslate"><span class="pre">MeshAxis.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.edges</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.centers"><code class="docutils literal notranslate"><span class="pre">MeshAxis.centers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.widths"><code class="docutils literal notranslate"><span class="pre">MeshAxis.widths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.n_cells"><code class="docutils literal notranslate"><span class="pre">MeshAxis.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.bounds"><code class="docutils literal notranslate"><span class="pre">MeshAxis.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.is_defined"><code class="docutils literal notranslate"><span class="pre">MeshAxis.is_defined</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.clear"><code class="docutils literal notranslate"><span class="pre">MeshAxis.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.add_segment"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_segment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.add_edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.validate"><code class="docutils literal notranslate"><span class="pre">MeshAxis.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#mesh.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.r"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.z"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id0"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id1"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.shape"><code class="docutils literal notranslate"><span class="pre">Mesh.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.n_cells"><code class="docutils literal notranslate"><span class="pre">Mesh.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.validate"><code class="docutils literal notranslate"><span class="pre">Mesh.validate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="materials.html">Materials API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="materials.html#materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.Material.name"><code class="docutils literal notranslate"><span class="pre">Material.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.Material.dort_id"><code class="docutils literal notranslate"><span class="pre">Material.dort_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.Material.description"><code class="docutils literal notranslate"><span class="pre">Material.description</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="materials.html#materials.MaterialRegistry"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.add"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.replace"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.replace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.remove"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.get"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.get_by_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.get_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.has_name"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.has_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.names"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.ids"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.materials"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.validate"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="materials.html#materials.MaterialRegistry.clear"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.name"><code class="docutils literal notranslate"><span class="pre">Region.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.material"><code class="docutils literal notranslate"><span class="pre">Region.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r"><code class="docutils literal notranslate"><span class="pre">Region.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z"><code class="docutils literal notranslate"><span class="pre">Region.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.priority"><code class="docutils literal notranslate"><span class="pre">Region.priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.enabled"><code class="docutils literal notranslate"><span class="pre">Region.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.description"><code class="docutils literal notranslate"><span class="pre">Region.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r_min"><code class="docutils literal notranslate"><span class="pre">Region.r_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r_max"><code class="docutils literal notranslate"><span class="pre">Region.r_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z_min"><code class="docutils literal notranslate"><span class="pre">Region.z_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z_max"><code class="docutils literal notranslate"><span class="pre">Region.z_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.bounds"><code class="docutils literal notranslate"><span class="pre">Region.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.mask"><code class="docutils literal notranslate"><span class="pre">Region.mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.n_cells"><code class="docutils literal notranslate"><span class="pre">Region.n_cells()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.intersects_mesh"><code class="docutils literal notranslate"><span class="pre">Region.intersects_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.is_within_mesh"><code class="docutils literal notranslate"><span class="pre">Region.is_within_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.overlaps"><code class="docutils literal notranslate"><span class="pre">Region.overlaps()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#regions.RegionRegistry"><code class="docutils literal notranslate"><span class="pre">RegionRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.add"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.get"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.remove"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.names"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.regions"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.sorted_by_priority"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.sorted_by_priority()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.clear"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="model.html#model.BuildSummary"><code class="docutils literal notranslate"><span class="pre">BuildSummary</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.model_name"><code class="docutils literal notranslate"><span class="pre">BuildSummary.model_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.shape"><code class="docutils literal notranslate"><span class="pre">BuildSummary.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_cells"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_materials"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_regions"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.background_material"><code class="docutils literal notranslate"><span class="pre">BuildSummary.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.warnings"><code class="docutils literal notranslate"><span class="pre">BuildSummary.warnings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="model.html#model.DORTModel"><code class="docutils literal notranslate"><span class="pre">DORTModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.mesh"><code class="docutils literal notranslate"><span class="pre">DORTModel.mesh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.materials"><code class="docutils literal notranslate"><span class="pre">DORTModel.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.regions"><code class="docutils literal notranslate"><span class="pre">DORTModel.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.add_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_material()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.add_region"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_region()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.background_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.set_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.set_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.clear_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.clear_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.is_built"><code class="docutils literal notranslate"><span class="pre">DORTModel.is_built</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_id_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_id_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_name_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_name_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.region_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.priority_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.priority_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.warnings"><code class="docutils literal notranslate"><span class="pre">DORTModel.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.validate"><code class="docutils literal notranslate"><span class="pre">DORTModel.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.build"><code class="docutils literal notranslate"><span class="pre">DORTModel.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.cell_assignment"><code class="docutils literal notranslate"><span class="pre">DORTModel.cell_assignment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_cell_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.region_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_cell_counts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quadrature API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature-py">quadrature.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dort-arrays">DORT arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recommended-usage">Recommended usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes-on-high-order-calculations">Notes on high-order calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature.QuadratureValidation"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.valid"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.valid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.errors"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.errors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.warnings"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.minimum_nonzero_weight"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.minimum_nonzero_weight</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.maximum_sphere_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_sphere_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.maximum_level_current"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_level_current</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureValidation.text"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature.QuadratureSet"><code class="docutils literal notranslate"><span class="pre">QuadratureSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.family"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.family</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.radial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.radial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.axial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.weights"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.reference_moments"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.reference_moments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.metadata"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.mu"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.mu</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.eta"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.integration_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.integration_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.zero_weight_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.zero_weight_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.third_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.third_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.axial_level_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_level_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.moment_value"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.moment_table"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.moment_table_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.validate"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.validation_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validation_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.array81"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array81()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.array82"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array82()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.array83"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array83()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.dort_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.dort_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.write_dort"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.write_dort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quadrature.QuadratureSet.summary_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.summary_text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature.generate_legacy_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_legacy_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature.generate_product_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_product_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quadrature.generate_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_quadrature()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature_plotting.html">Quadrature Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature-plotting-py">quadrature_plotting.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quadrature_plotting.html#provided-plotting-styles">Provided plotting styles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature_plotting.html#typical-usage">Typical usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_quadrature_set"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_set()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_quadrature_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_weight_distribution"><code class="docutils literal notranslate"><span class="pre">plot_weight_distribution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_weight_distribution_plot"><code class="docutils literal notranslate"><span class="pre">save_weight_distribution_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_quadrature_3d"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_3d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_quadrature_3d_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_3d_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.plot_materials"><code class="docutils literal notranslate"><span class="pre">plot_materials()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.plot_regions"><code class="docutils literal notranslate"><span class="pre">plot_regions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.save_material_plot"><code class="docutils literal notranslate"><span class="pre">save_material_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.save_region_plot"><code class="docutils literal notranslate"><span class="pre">save_region_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="writer.html">Writer API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.ZoneDefinition"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.zone_id"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.zone_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.owner"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.owner</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.material"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.material_number"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.n_cells"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.n_cells</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.ZoneData"><code class="docutils literal notranslate"><span class="pre">ZoneData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.zone_map"><code class="docutils literal notranslate"><span class="pre">ZoneData.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.zones"><code class="docutils literal notranslate"><span class="pre">ZoneData.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.izm"><code class="docutils literal notranslate"><span class="pre">ZoneData.izm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.DORTWriter"><code class="docutils literal notranslate"><span class="pre">DORTWriter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.im"><code class="docutils literal notranslate"><span class="pre">DORTWriter.im</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.jm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.jm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.izm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zones"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zone_map"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.required_control_values"><code class="docutils literal notranslate"><span class="pre">DORTWriter.required_control_values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.material_number"><code class="docutils literal notranslate"><span class="pre">DORTWriter.material_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.ijzn_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.ijzn_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.izmt_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izmt_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array2"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array4"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array4()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array8"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array8()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array9"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array9()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array84_identity"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array84_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.block4_geometry_material_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.block4_geometry_material_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.write_block4_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.write_block4_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zone_table_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.summary_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.summary_text()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../limitations.html">Current Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../limitations.html#quadrature-status">Quadrature status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#template-deck-handling">Template/deck handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#additional-geometry-primitives">Additional geometry primitives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#material-library-integration">Material-library integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#alternative-user-frontends">Alternative user frontends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#quadrature-integration">Quadrature integration</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DORT R-Z Input Preparation API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quadrature API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/quadrature.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-quadrature">
+<span id="quadrature-api"></span><h1>Quadrature API<a class="headerlink" href="#module-quadrature" title="Link to this heading"></a></h1>
+<section id="quadrature-py">
+<h2>quadrature.py<a class="headerlink" href="#quadrature-py" title="Link to this heading"></a></h2>
+<p>Modern quadrature generation for DORT two-dimensional discrete-ordinates
+calculations.</p>
+<p>The module provides two complementary quadrature families:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">legacy</span></code></dt><dd><p>Reproduces the numerical construction used by the historical DOQDP
+generator supplied with DORT.  This is useful for reproducing established
+S_N sets and legacy calculations.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">product</span></code></dt><dd><p>A modern positive-weight Gauss product quadrature intended for higher
+angular resolution.  It does not solve the increasingly ill-conditioned
+moment-fitting system used by the legacy generator.</p>
+</dd>
+</dl>
+<p>The public API deliberately uses descriptive Python names instead of the
+short variable names and integer flags used in the original Fortran code.</p>
+<section id="dort-arrays">
+<h3>DORT arrays<a class="headerlink" href="#dort-arrays" title="Link to this heading"></a></h3>
+<p>A generated <a class="reference internal" href="#quadrature.QuadratureSet" title="quadrature.QuadratureSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuadratureSet</span></code></a> can be written directly as:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">81*</span></code></dt><dd><p>Directional weights.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">82*</span></code></dt><dd><p>Radial/first-dimension direction cosine, conventionally called MU in
+DORT documentation.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">83*</span></code></dt><dd><p>Axial/second-dimension direction cosine, conventionally called ETA in
+DORT documentation.</p>
+</dd>
+</dl>
+<p>For R-Z geometry, the first dimension is R and the second dimension is Z.</p>
+</section>
+<section id="recommended-usage">
+<h3>Recommended usage<a class="headerlink" href="#recommended-usage" title="Link to this heading"></a></h3>
+<p>Reproduce a conventional legacy S8 set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_legacy_quadrature</span>
+
+<span class="n">quadrature</span> <span class="o">=</span> <span class="n">generate_legacy_quadrature</span><span class="p">(</span>
+    <span class="n">order</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;half&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Generate a robust higher-resolution product set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_product_quadrature</span>
+
+<span class="n">quadrature</span> <span class="o">=</span> <span class="n">generate_product_quadrature</span><span class="p">(</span>
+    <span class="n">polar_order</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+    <span class="n">azimuthal_order</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Inspect and write the set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">quadrature</span><span class="o">.</span><span class="n">summary_text</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">quadrature</span><span class="o">.</span><span class="n">validation_text</span><span class="p">())</span>
+<span class="n">quadrature</span><span class="o">.</span><span class="n">write_dort</span><span class="p">(</span><span class="s2">&quot;quadrature.inc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="notes-on-high-order-calculations">
+<h3>Notes on high-order calculations<a class="headerlink" href="#notes-on-high-order-calculations" title="Link to this heading"></a></h3>
+<p>Increasing the order of the historical moment-fitted quadrature does not
+necessarily produce a numerically better set.  At sufficiently high order,
+the legacy coefficient matrix becomes ill-conditioned and negative weights
+can appear.</p>
+<p>The product family avoids that solve.  It uses:</p>
+<ul class="simple">
+<li><p>Gauss-Legendre integration in the axial cosine;</p></li>
+<li><p>Gauss-Legendre integration in azimuth over the half-sphere represented by
+a two-dimensional DORT calculation;</p></li>
+<li><p>positive integration weights;</p></li>
+<li><p>an explicit zero-weight initiating direction for every axial-cosine level;</p></li>
+<li><p>increasing radial cosine within every level.</p></li>
+</ul>
+<p>The product family is therefore the recommended choice when the goal is
+higher angular resolution rather than exact reproduction of an old DOQDP set.</p>
+</section>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quadrature.</span></span><span class="sig-name descname"><span class="pre">QuadratureValidation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_sum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_nonzero_weight</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_sphere_error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_level_current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_moment_error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureValidation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureValidation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Result of validating a DORT quadrature set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valid</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> when no validation errors were detected.</p></li>
+<li><p><strong>errors</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>...</em><em>]</em>) – Conditions that make the set unsuitable for DORT output.</p></li>
+<li><p><strong>warnings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>...</em><em>]</em>) – Non-fatal numerical or quality concerns.</p></li>
+<li><p><strong>weight_sum</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Sum of the final directional weights.</p></li>
+<li><p><strong>minimum_nonzero_weight</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Smallest weight among actual integration directions.  Zero-weight
+level initiators are excluded.</p></li>
+<li><p><strong>maximum_sphere_error</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Maximum positive violation of
+<code class="docutils literal notranslate"><span class="pre">radial_cosine**2</span> <span class="pre">+</span> <span class="pre">axial_cosine**2</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>.</p></li>
+<li><p><strong>maximum_level_current</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Largest absolute value of the weighted radial cosine summed within
+one axial-cosine level.</p></li>
+<li><p><strong>maximum_moment_error</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Largest error among the reference angular moments checked.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.valid">
+<span class="sig-name descname"><span class="pre">valid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.valid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.errors">
+<span class="sig-name descname"><span class="pre">errors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#quadrature.QuadratureValidation.errors" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.warnings">
+<span class="sig-name descname"><span class="pre">warnings</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#quadrature.QuadratureValidation.warnings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.weight_sum">
+<span class="sig-name descname"><span class="pre">weight_sum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.weight_sum" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.minimum_nonzero_weight">
+<span class="sig-name descname"><span class="pre">minimum_nonzero_weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.minimum_nonzero_weight" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.maximum_sphere_error">
+<span class="sig-name descname"><span class="pre">maximum_sphere_error</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.maximum_sphere_error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.maximum_level_current">
+<span class="sig-name descname"><span class="pre">maximum_level_current</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.maximum_level_current" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.maximum_moment_error">
+<span class="sig-name descname"><span class="pre">maximum_moment_error</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureValidation.maximum_moment_error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureValidation.text">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureValidation.text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureValidation.text" title="Link to this definition"></a></dt>
+<dd><p>Return a human-readable validation report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quadrature.</span></span><span class="sig-name descname"><span class="pre">QuadratureSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_cosine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axial_cosine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A completed DORT quadrature set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>family</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the generation method, currently <code class="docutils literal notranslate"><span class="pre">&quot;legacy&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;product&quot;</span></code>.</p></li>
+<li><p><strong>radial_cosine</strong> (<em>numpy.ndarray</em>) – First-dimension direction cosine.  In DORT documentation this is MU.</p></li>
+<li><p><strong>axial_cosine</strong> (<em>numpy.ndarray</em>) – Second-dimension direction cosine.  In DORT documentation this is ETA.</p></li>
+<li><p><strong>weights</strong> (<em>numpy.ndarray</em>) – Directional integration weights.  Level-initiating directions have
+zero weight.</p></li>
+<li><p><strong>reference_moments</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><em>...</em><em>]</em>) – Moment pairs <code class="docutils literal notranslate"><span class="pre">(radial_power,</span> <span class="pre">axial_power)</span></code> used for numerical
+verification.</p></li>
+<li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a><em>]</em>) – Generation-specific information.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.family">
+<span class="sig-name descname"><span class="pre">family</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.family" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.radial_cosine">
+<span class="sig-name descname"><span class="pre">radial_cosine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.radial_cosine" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.axial_cosine">
+<span class="sig-name descname"><span class="pre">axial_cosine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.axial_cosine" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.weights" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.reference_moments">
+<span class="sig-name descname"><span class="pre">reference_moments</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#quadrature.QuadratureSet.reference_moments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><span class="pre">object</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#quadrature.QuadratureSet.metadata" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.mu">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mu</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.mu" title="Link to this definition"></a></dt>
+<dd><p>Alias for <a class="reference internal" href="#quadrature.QuadratureSet.radial_cosine" title="quadrature.QuadratureSet.radial_cosine"><code class="xref py py-attr docutils literal notranslate"><span class="pre">radial_cosine</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mu</span></code> is retained only because it is standard DORT terminology.
+New application code can use <code class="docutils literal notranslate"><span class="pre">radial_cosine</span></code> for clarity.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.eta">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">eta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.eta" title="Link to this definition"></a></dt>
+<dd><p>Alias for <a class="reference internal" href="#quadrature.QuadratureSet.axial_cosine" title="quadrature.QuadratureSet.axial_cosine"><code class="xref py py-attr docutils literal notranslate"><span class="pre">axial_cosine</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">eta</span></code> is retained only because it is standard DORT terminology.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.direction_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">direction_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.direction_count" title="Link to this definition"></a></dt>
+<dd><p>Total number of DORT directions, including zero-weight initiators.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.integration_direction_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">integration_direction_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.integration_direction_count" title="Link to this definition"></a></dt>
+<dd><p>Number of nonzero-weight integration directions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.zero_weight_direction_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">zero_weight_direction_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.zero_weight_direction_count" title="Link to this definition"></a></dt>
+<dd><p>Number of zero-weight level-initiating directions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.weight_sum">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">weight_sum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.weight_sum" title="Link to this definition"></a></dt>
+<dd><p>Sum of all final directional weights.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.third_cosine">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">third_cosine</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#quadrature.QuadratureSet.third_cosine" title="Link to this definition"></a></dt>
+<dd><p>Magnitude of the unrepresented third direction cosine.</p>
+<p>For an R-Z calculation this is the azimuthal direction-cosine
+magnitude.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.axial_level_count">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">axial_level_count</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.axial_level_count" title="Link to this definition"></a></dt>
+<dd><p>Number of contiguous axial-cosine levels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.moment_value">
+<span class="sig-name descname"><span class="pre">moment_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radial_power</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axial_power</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.moment_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.moment_value" title="Link to this definition"></a></dt>
+<dd><p>Numerically integrate one angular monomial.</p>
+<p>The weights are normalized so that the zeroth moment is 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radial_power</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>axial_power</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.moment_table">
+<span class="sig-name descname"><span class="pre">moment_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.moment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.moment_table" title="Link to this definition"></a></dt>
+<dd><p>Return reference-moment results.</p>
+<p>Each tuple contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">radial_power</span><span class="p">,</span> <span class="n">axial_power</span><span class="p">,</span> <span class="n">calculated</span><span class="p">,</span> <span class="n">analytical</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.maximum_moment_error">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maximum_moment_error</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#quadrature.QuadratureSet.maximum_moment_error" title="Link to this definition"></a></dt>
+<dd><p>Largest absolute error among the configured reference moments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.moment_table_text">
+<span class="sig-name descname"><span class="pre">moment_table_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.moment_table_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.moment_table_text" title="Link to this definition"></a></dt>
+<dd><p>Return a formatted table of angular-moment checks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_positive_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.validate" title="Link to this definition"></a></dt>
+<dd><p>Validate DORT ordering, normalization, geometry and angular moments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Numerical tolerance for geometry, ordering, normalization and
+level-current checks.</p></li>
+<li><p><strong>moment_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Warning threshold for the reference moment errors.</p></li>
+<li><p><strong>require_positive_weights</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em> | </em><em>None</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, negative integration weights are treated as errors.
+If <code class="docutils literal notranslate"><span class="pre">False</span></code>, they are only reported as warnings.  If omitted,
+product quadratures require positive weights while legacy
+quadratures only warn about negative weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Structured validation result.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#quadrature.QuadratureValidation" title="quadrature.QuadratureValidation">QuadratureValidation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.validation_text">
+<span class="sig-name descname"><span class="pre">validation_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.validation_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.validation_text" title="Link to this definition"></a></dt>
+<dd><p>Convenience wrapper returning <a class="reference internal" href="#quadrature.QuadratureSet.validate" title="quadrature.QuadratureSet.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate()</span></code></a> as formatted text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.array81">
+<span class="sig-name descname"><span class="pre">array81</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.array81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.array81" title="Link to this definition"></a></dt>
+<dd><p>Return the DORT <code class="docutils literal notranslate"><span class="pre">81*</span></code> directional-weight array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.array82">
+<span class="sig-name descname"><span class="pre">array82</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.array82"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.array82" title="Link to this definition"></a></dt>
+<dd><p>Return the DORT <code class="docutils literal notranslate"><span class="pre">82*</span></code> radial-cosine array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.array83">
+<span class="sig-name descname"><span class="pre">array83</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.array83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.array83" title="Link to this definition"></a></dt>
+<dd><p>Return the DORT <code class="docutils literal notranslate"><span class="pre">83*</span></code> axial-cosine array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.dort_text">
+<span class="sig-name descname"><span class="pre">dort_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(82,</span> <span class="pre">83,</span> <span class="pre">81)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.dort_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.dort_text" title="Link to this definition"></a></dt>
+<dd><p>Return a DORT quadrature fragment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>values_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of numerical values per output line.</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Digits after the decimal in scientific notation.</p></li>
+<li><p><strong>array_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – Ordering of arrays in the text.  The default matches the supplied
+sample input: <code class="docutils literal notranslate"><span class="pre">82*</span></code>, <code class="docutils literal notranslate"><span class="pre">83*</span></code>, then <code class="docutils literal notranslate"><span class="pre">81*</span></code>.</p></li>
+<li><p><strong>terminate_block</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Append <code class="docutils literal notranslate"><span class="pre">T</span></code> if this is the final content of DORT input block 3.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.write_dort">
+<span class="sig-name descname"><span class="pre">write_dort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(82,</span> <span class="pre">83,</span> <span class="pre">81)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminate_block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.write_dort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.write_dort" title="Link to this definition"></a></dt>
+<dd><p>Write a validated DORT quadrature fragment to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a>)</p></li>
+<li><p><strong>values_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
+<li><p><strong>array_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>)</p></li>
+<li><p><strong>terminate_block</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quadrature.QuadratureSet.summary_text">
+<span class="sig-name descname"><span class="pre">summary_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#QuadratureSet.summary_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.QuadratureSet.summary_text" title="Link to this definition"></a></dt>
+<dd><p>Return a concise description of the quadrature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quadrature.generate_legacy_quadrature">
+<span class="sig-prename descclassname"><span class="pre">quadrature.</span></span><span class="sig-name descname"><span class="pre">generate_legacy_quadrature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'half'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radial_cosine_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smallest_radial_cosine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axial_cosine_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moment_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_refinements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#generate_legacy_quadrature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.generate_legacy_quadrature" title="Link to this definition"></a></dt>
+<dd><p>Generate a DOQDP-compatible legacy DORT quadrature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Even S_N order, e.g. <code class="docutils literal notranslate"><span class="pre">8</span></code> for S8.</p></li>
+<li><p><strong>symmetry</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Weight-sharing symmetry used by the old moment fit:
+<code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>.
+<code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code> is the recommended legacy choice.</p></li>
+<li><p><strong>radial_cosine_levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><em>None</em>) – Optional explicit positive radial-cosine levels, supplied in strictly
+descending order.  The number of entries must be <code class="docutils literal notranslate"><span class="pre">order/2</span></code>.
+If omitted, levels are generated from one smallest positive cosine.</p></li>
+<li><p><strong>smallest_radial_cosine</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em> | </em><em>None</em>) – <p>Smallest positive radial cosine used to construct the remaining
+levels.  If omitted, the historical recommended value</p>
+<p><code class="docutils literal notranslate"><span class="pre">sqrt(1</span> <span class="pre">/</span> <span class="pre">(3*order</span> <span class="pre">-</span> <span class="pre">3))</span></code></p>
+<p>is used.</p>
+<p>Do not specify this together with <code class="docutils literal notranslate"><span class="pre">radial_cosine_levels</span></code>.</p>
+</p></li>
+<li><p><strong>axial_cosine_levels</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.14)"><em>Iterable</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><em>None</em>) – Optional explicit positive axial-cosine levels in descending order.
+If omitted, the radial levels are reused.</p></li>
+<li><p><strong>moment_pairs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional list of moment powers
+<code class="docutils literal notranslate"><span class="pre">(radial_power,</span> <span class="pre">axial_power)</span></code>.  If omitted, the historical moment
+selection algorithm is used.</p></li>
+<li><p><strong>solve_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Tolerance used by iterative refinement of the weight solve.</p></li>
+<li><p><strong>maximum_refinements</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Maximum iterative-refinement corrections.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Full DORT direction set normalized to unit total weight.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#quadrature.QuadratureSet" title="quadrature.QuadratureSet">QuadratureSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function is intended primarily for reproducibility.  For genuinely
+high angular resolution, prefer <a class="reference internal" href="#quadrature.generate_product_quadrature" title="quadrature.generate_product_quadrature"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_product_quadrature()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quadrature.generate_product_quadrature">
+<span class="sig-prename descclassname"><span class="pre">quadrature.</span></span><span class="sig-name descname"><span class="pre">generate_product_quadrature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">polar_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azimuthal_order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_moment_degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#generate_product_quadrature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.generate_product_quadrature" title="Link to this definition"></a></dt>
+<dd><p>Generate a positive-weight Gauss product quadrature for DORT.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>polar_order</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of Gauss-Legendre axial-cosine levels over <code class="docutils literal notranslate"><span class="pre">[-1,</span> <span class="pre">1]</span></code>.
+It must be an even integer so that no zero axial-cosine level is
+introduced and negative levels precede positive levels cleanly.</p></li>
+<li><p><strong>azimuthal_order</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of Gauss-Legendre azimuthal integration directions in each
+axial level over the represented half-sphere <code class="docutils literal notranslate"><span class="pre">phi</span> <span class="pre">in</span> <span class="pre">[0,</span> <span class="pre">pi]</span></code>.
+Larger values resolve radial/azimuthal angular variation more finely.</p></li>
+<li><p><strong>reference_moment_degree</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Highest even total polynomial degree included in automatic moment
+validation.  The default checks moments through degree 6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Positive-weight full DORT quadrature normalized to unit total weight.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#quadrature.QuadratureSet" title="quadrature.QuadratureSet">QuadratureSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>For every axial level, one additional zero-weight initiating direction is
+inserted at the most negative radial cosine.  Therefore:</p>
+<p><code class="docutils literal notranslate"><span class="pre">MM</span> <span class="pre">=</span> <span class="pre">polar_order</span> <span class="pre">*</span> <span class="pre">(azimuthal_order</span> <span class="pre">+</span> <span class="pre">1)</span></code></p>
+<p>where <code class="docutils literal notranslate"><span class="pre">MM</span></code> is the number of directions that should be used in DORT’s
+control input.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quadrature.generate_quadrature">
+<span class="sig-prename descclassname"><span class="pre">quadrature.</span></span><span class="sig-name descname"><span class="pre">generate_quadrature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'legacy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/quadrature.html#generate_quadrature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quadrature.generate_quadrature" title="Link to this definition"></a></dt>
+<dd><p>Unified convenience dispatcher.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>family</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;legacy&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;product&quot;</span></code>.</p></li>
+<li><p><strong>**options</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – Arguments for the selected generator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#quadrature.QuadratureSet" title="quadrature.QuadratureSet"><em>QuadratureSet</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Legacy S8:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">generate_quadrature</span><span class="p">(</span>
+    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;legacy&quot;</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">symmetry</span><span class="o">=</span><span class="s2">&quot;half&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>High-order product quadrature:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">generate_quadrature</span><span class="p">(</span>
+    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;product&quot;</span><span class="p">,</span>
+    <span class="n">polar_order</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+    <span class="n">azimuthal_order</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model.html" class="btn btn-neutral float-left" title="Model API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quadrature_plotting.html" class="btn btn-neutral float-right" title="Quadrature Plotting API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Anupam Chakraborty.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

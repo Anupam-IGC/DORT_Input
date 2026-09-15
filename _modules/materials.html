@@ -1,0 +1,971 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>materials &mdash; DORT R-Z Input Preparation API 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DORT R-Z Input Preparation API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#minimal-example">Minimal example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#quadrature-stage">Quadrature stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#recommended-practice">Recommended practice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#current-import-model">Current import model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#documentation-dependencies">Documentation dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#read-the-docs">Read the Docs</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/mesh.html">Mesh Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#piecewise-uniform-segments">Piecewise-uniform segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#segment-by-number-of-cells">Segment by number of cells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#explicit-mesh-boundaries">Explicit mesh boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#useful-properties">Useful properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#array-convention">Array convention</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/materials.html">Materials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registering-materials">Registering materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registry-access">Registry access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#internal-material-ids-versus-dort-library-numbers">Internal material IDs versus DORT library numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/regions.html">Regions and Priority Filling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#rectangular-r-z-regions">Rectangular R-Z regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#cell-centre-membership">Cell-centre membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#background-material">Background material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#priority-model">Priority model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#equal-priority-overlap">Equal-priority overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/building.html">Building and Validating a Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#build-operations">Build operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#strict-region-bounds">Strict region bounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#unfilled-cells">Unfilled cells</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/inspection.html">Inspecting the Built Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#main-result-arrays">Main result arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#material-maps">Material maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#region-ownership">Region ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#inspecting-one-cell">Inspecting one cell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#cell-count-summaries">Cell-count summaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/plotting.html">Plotting and Visual Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#material-map">Material map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#region-map">Region map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#convenience-save-functions">Convenience save functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#recommended-verification">Recommended verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quadrature.html">Quadrature-Set Calculation and DORT Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#processing-position">Processing position</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#dort-directional-arrays">DORT directional arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#basic-validation">Basic validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#fixed-versus-variable-quadrature">Fixed versus variable quadrature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#compatibility-warning-for-non-classical-quadratures">Compatibility warning for non-classical quadratures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#documentation-integration">Documentation integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_writer.html">DORT Writer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policies">Zone policies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-region"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;region&quot;</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-material"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;material&quot;</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#generated-arrays">Generated arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#control-values">Control values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#writing-a-block-4-fragment">Writing a Block-4 fragment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_mapping.html">DORT Array Mapping and Ordering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#internal-array-layout">Internal array layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#serialization-order">Serialization order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#zone-to-material-mapping">Zone-to-material mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#validation-recommendation">Validation recommendation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/basic_model.html">Basic Model Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/external_material_numbers.html">Using DORT Cross-Section Material Numbers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/mesh.html">Mesh API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis"><code class="docutils literal notranslate"><span class="pre">MeshAxis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.name"><code class="docutils literal notranslate"><span class="pre">MeshAxis.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.edges</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.centers"><code class="docutils literal notranslate"><span class="pre">MeshAxis.centers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.widths"><code class="docutils literal notranslate"><span class="pre">MeshAxis.widths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.n_cells"><code class="docutils literal notranslate"><span class="pre">MeshAxis.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.bounds"><code class="docutils literal notranslate"><span class="pre">MeshAxis.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.is_defined"><code class="docutils literal notranslate"><span class="pre">MeshAxis.is_defined</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.clear"><code class="docutils literal notranslate"><span class="pre">MeshAxis.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.add_segment"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_segment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.add_edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.MeshAxis.validate"><code class="docutils literal notranslate"><span class="pre">MeshAxis.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/mesh.html#mesh.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.Mesh.r"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.Mesh.z"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#id0"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#id1"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.Mesh.shape"><code class="docutils literal notranslate"><span class="pre">Mesh.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.Mesh.n_cells"><code class="docutils literal notranslate"><span class="pre">Mesh.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/mesh.html#mesh.Mesh.validate"><code class="docutils literal notranslate"><span class="pre">Mesh.validate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/materials.html">Materials API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/materials.html#materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.Material.name"><code class="docutils literal notranslate"><span class="pre">Material.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.Material.dort_id"><code class="docutils literal notranslate"><span class="pre">Material.dort_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.Material.description"><code class="docutils literal notranslate"><span class="pre">Material.description</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.add"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.replace"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.replace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.remove"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.get"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.get_by_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.get_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.has_name"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.has_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.names"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.ids"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.materials"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.validate"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/materials.html#materials.MaterialRegistry.clear"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/regions.html">Regions API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/regions.html#regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.name"><code class="docutils literal notranslate"><span class="pre">Region.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.material"><code class="docutils literal notranslate"><span class="pre">Region.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.r"><code class="docutils literal notranslate"><span class="pre">Region.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.z"><code class="docutils literal notranslate"><span class="pre">Region.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.priority"><code class="docutils literal notranslate"><span class="pre">Region.priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.enabled"><code class="docutils literal notranslate"><span class="pre">Region.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.description"><code class="docutils literal notranslate"><span class="pre">Region.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.r_min"><code class="docutils literal notranslate"><span class="pre">Region.r_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.r_max"><code class="docutils literal notranslate"><span class="pre">Region.r_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.z_min"><code class="docutils literal notranslate"><span class="pre">Region.z_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.z_max"><code class="docutils literal notranslate"><span class="pre">Region.z_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.bounds"><code class="docutils literal notranslate"><span class="pre">Region.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.mask"><code class="docutils literal notranslate"><span class="pre">Region.mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.n_cells"><code class="docutils literal notranslate"><span class="pre">Region.n_cells()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.intersects_mesh"><code class="docutils literal notranslate"><span class="pre">Region.intersects_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.is_within_mesh"><code class="docutils literal notranslate"><span class="pre">Region.is_within_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.Region.overlaps"><code class="docutils literal notranslate"><span class="pre">Region.overlaps()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry"><code class="docutils literal notranslate"><span class="pre">RegionRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.add"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.get"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.remove"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.names"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.regions"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.sorted_by_priority"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.sorted_by_priority()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/regions.html#regions.RegionRegistry.clear"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/model.html">Model API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/model.html#model.BuildSummary"><code class="docutils literal notranslate"><span class="pre">BuildSummary</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.model_name"><code class="docutils literal notranslate"><span class="pre">BuildSummary.model_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.shape"><code class="docutils literal notranslate"><span class="pre">BuildSummary.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.n_cells"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.n_materials"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.n_regions"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.background_material"><code class="docutils literal notranslate"><span class="pre">BuildSummary.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.BuildSummary.warnings"><code class="docutils literal notranslate"><span class="pre">BuildSummary.warnings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/model.html#model.DORTModel"><code class="docutils literal notranslate"><span class="pre">DORTModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.mesh"><code class="docutils literal notranslate"><span class="pre">DORTModel.mesh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.materials"><code class="docutils literal notranslate"><span class="pre">DORTModel.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.regions"><code class="docutils literal notranslate"><span class="pre">DORTModel.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.add_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_material()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.add_region"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_region()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.background_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.set_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.set_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.clear_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.clear_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.is_built"><code class="docutils literal notranslate"><span class="pre">DORTModel.is_built</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.material_id_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_id_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.material_name_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_name_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.region_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.priority_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.priority_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.warnings"><code class="docutils literal notranslate"><span class="pre">DORTModel.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.validate"><code class="docutils literal notranslate"><span class="pre">DORTModel.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.build"><code class="docutils literal notranslate"><span class="pre">DORTModel.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.cell_assignment"><code class="docutils literal notranslate"><span class="pre">DORTModel.cell_assignment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.material_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_cell_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/model.html#model.DORTModel.region_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_cell_counts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/quadrature.html">Quadrature API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature-py">quadrature.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#dort-arrays">DORT arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#recommended-usage">Recommended usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#notes-on-high-order-calculations">Notes on high-order calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.valid"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.valid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.errors"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.errors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.warnings"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.minimum_nonzero_weight"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.minimum_nonzero_weight</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.maximum_sphere_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_sphere_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.maximum_level_current"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_level_current</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureValidation.text"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet"><code class="docutils literal notranslate"><span class="pre">QuadratureSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.family"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.family</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.radial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.radial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.axial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.weights"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.reference_moments"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.reference_moments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.metadata"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.mu"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.mu</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.eta"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.integration_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.integration_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.zero_weight_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.zero_weight_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.third_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.third_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.axial_level_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_level_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.moment_value"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.moment_table"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.moment_table_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.validate"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.validation_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validation_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.array81"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array81()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.array82"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array82()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.array83"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array83()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.dort_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.dort_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.write_dort"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.write_dort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature.html#quadrature.QuadratureSet.summary_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.summary_text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature.generate_legacy_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_legacy_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature.generate_product_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_product_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature.html#quadrature.generate_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_quadrature()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/quadrature_plotting.html">Quadrature Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature-plotting-py">quadrature_plotting.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature_plotting.html#provided-plotting-styles">Provided plotting styles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/quadrature_plotting.html#typical-usage">Typical usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.plot_quadrature_set"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_set()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.save_quadrature_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.plot_weight_distribution"><code class="docutils literal notranslate"><span class="pre">plot_weight_distribution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.save_weight_distribution_plot"><code class="docutils literal notranslate"><span class="pre">save_weight_distribution_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.plot_quadrature_3d"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_3d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/quadrature_plotting.html#quadrature_plotting.save_quadrature_3d_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_3d_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/plotting.html">Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html#plotting.plot_materials"><code class="docutils literal notranslate"><span class="pre">plot_materials()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html#plotting.plot_regions"><code class="docutils literal notranslate"><span class="pre">plot_regions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html#plotting.save_material_plot"><code class="docutils literal notranslate"><span class="pre">save_material_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html#plotting.save_region_plot"><code class="docutils literal notranslate"><span class="pre">save_region_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/writer.html">Writer API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition.zone_id"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.zone_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition.owner"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.owner</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition.material"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition.material_number"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneDefinition.n_cells"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.n_cells</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html#writer.ZoneData"><code class="docutils literal notranslate"><span class="pre">ZoneData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneData.zone_map"><code class="docutils literal notranslate"><span class="pre">ZoneData.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneData.zones"><code class="docutils literal notranslate"><span class="pre">ZoneData.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.ZoneData.izm"><code class="docutils literal notranslate"><span class="pre">ZoneData.izm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html#writer.DORTWriter"><code class="docutils literal notranslate"><span class="pre">DORTWriter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.im"><code class="docutils literal notranslate"><span class="pre">DORTWriter.im</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.jm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.jm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.izm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.zones"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.zone_map"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.required_control_values"><code class="docutils literal notranslate"><span class="pre">DORTWriter.required_control_values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.material_number"><code class="docutils literal notranslate"><span class="pre">DORTWriter.material_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.ijzn_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.ijzn_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.izmt_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izmt_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.array2"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.array4"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array4()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.array8"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array8()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.array9"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array9()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.array84_identity"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array84_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.block4_geometry_material_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.block4_geometry_material_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.write_block4_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.write_block4_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.zone_table_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/writer.html#writer.DORTWriter.summary_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.summary_text()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../limitations.html">Current Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../limitations.html#quadrature-status">Quadrature status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#template-deck-handling">Template/deck handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#additional-geometry-primitives">Additional geometry primitives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#material-library-integration">Material-library integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#alternative-user-frontends">Alternative user frontends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#quadrature-integration">Quadrature integration</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DORT R-Z Input Preparation API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">materials</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for materials</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Material definitions and registry utilities for DORT input preparation.</span>
+
+<span class="sd">The module manages readable material names and positive internal material IDs.</span>
+<span class="sd">It deliberately contains no geometry or DORT/FIDO writing logic.</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">``Material.dort_id`` is an internal project identifier.  A DORT/GIP</span>
+<span class="sd">cross-section library may use a different, including negative, material</span>
+<span class="sd">number.  Such external numbers are supplied separately to ``DORTWriter``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
+
+<div class="viewcode-block" id="Material">
+<a class="viewcode-back" href="../api/materials.html#materials.Material">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Material</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent one physical material registered in a model.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Human-readable material name, for example ``&quot;SS316&quot;`` or ``&quot;Sodium&quot;``.</span>
+<span class="sd">    dort_id : int</span>
+<span class="sd">        Positive internal identifier used in the built material map.</span>
+<span class="sd">    description : str, optional</span>
+<span class="sd">        Free-text description of the material.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``dort_id`` is not an integer.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``name`` is empty or ``dort_id`` is not positive.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The dataclass is frozen so a registered material cannot be modified</span>
+<span class="sd">    accidentally.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dort_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Material name cannot be empty.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dort_id</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dort_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Material dort_id must be an integer.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dort_id</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Material dort_id must be a positive integer.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Preserve a cleaned name even though the dataclass is frozen.</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Material(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;dort_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dort_id</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;description=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MaterialRegistry">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaterialRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage a collection of uniquely named materials and internal IDs.</span>
+<span class="sd">    </span>
+<span class="sd">    Materials are stored in insertion order. Names are case-sensitive.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from materials import MaterialRegistry</span>
+<span class="sd">    &gt;&gt;&gt; materials = MaterialRegistry()</span>
+<span class="sd">    &gt;&gt;&gt; materials.add(&quot;Sodium&quot;)</span>
+<span class="sd">    Material(name=&#39;Sodium&#39;, dort_id=1, description=&#39;&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; materials.add(&quot;B4C&quot;, dort_id=10)</span>
+<span class="sd">    Material(name=&#39;B4C&#39;, dort_id=10, description=&#39;&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Material</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_next_available_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the smallest unused positive internal material ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Smallest positive integer not currently assigned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">used</span> <span class="o">=</span> <span class="p">{</span><span class="n">material</span><span class="o">.</span><span class="n">dort_id</span> <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+
+        <span class="n">candidate</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">used</span><span class="p">:</span>
+            <span class="n">candidate</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">candidate</span>
+
+<div class="viewcode-block" id="MaterialRegistry.add">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">dort_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create and register a material.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Unique material name.</span>
+<span class="sd">        dort_id : int, optional</span>
+<span class="sd">            Positive internal ID. If omitted, the smallest available positive integer</span>
+<span class="sd">            is selected automatically.</span>
+<span class="sd">        description : str, optional</span>
+<span class="sd">            Free-text material description.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Material</span>
+<span class="sd">            Newly registered immutable material object.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If ``dort_id`` is provided but is not an integer.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the name is empty/already registered, or the requested ID is</span>
+<span class="sd">            non-positive/already used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">clean_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Material name cannot be empty.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">clean_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">:</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">[</span><span class="n">clean_name</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">clean_name</span><span class="si">!r}</span><span class="s2"> already exists &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;with DORT ID </span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">dort_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dort_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dort_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_available_id</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dort_id</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dort_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;dort_id must be an integer or None.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dort_id</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dort_id must be a positive integer.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_id</span><span class="p">(</span><span class="n">dort_id</span><span class="p">):</span>
+                <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="n">dort_id</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;DORT ID </span><span class="si">{</span><span class="n">dort_id</span><span class="si">}</span><span class="s2"> is already assigned to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;material </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">material</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">clean_name</span><span class="p">,</span>
+            <span class="n">dort_id</span><span class="o">=</span><span class="n">dort_id</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">[</span><span class="n">clean_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">material</span>
+        <span class="k">return</span> <span class="n">material</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.replace">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.replace">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">dort_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Replace the definition of an existing material.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Name of the registered material to replace.</span>
+<span class="sd">        dort_id : int, optional</span>
+<span class="sd">            New positive internal ID. ``None`` preserves the existing ID.</span>
+<span class="sd">        description : str, optional</span>
+<span class="sd">            New description. ``None`` preserves the existing description.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Material</span>
+<span class="sd">            Replacement immutable material object.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If ``name`` is not registered.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the resulting ID is not an integer.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the resulting ID is non-positive or already assigned to another</span>
+<span class="sd">            material.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not registered.&quot;</span><span class="p">)</span>
+
+        <span class="n">old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="n">new_id</span> <span class="o">=</span> <span class="n">old</span><span class="o">.</span><span class="n">dort_id</span> <span class="k">if</span> <span class="n">dort_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dort_id</span>
+        <span class="n">new_description</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">old</span><span class="o">.</span><span class="n">description</span> <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">description</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_id</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;dort_id must be an integer.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new_id</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;dort_id must be a positive integer.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">other_name</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">other_name</span> <span class="o">!=</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">dort_id</span> <span class="o">==</span> <span class="n">new_id</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;DORT ID </span><span class="si">{</span><span class="n">new_id</span><span class="si">}</span><span class="s2"> is already assigned to &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;material </span><span class="si">{</span><span class="n">other_name</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">Material</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">dort_id</span><span class="o">=</span><span class="n">new_id</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">new_description</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated</span>
+        <span class="k">return</span> <span class="n">updated</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.remove">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.remove">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a material by name.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Registered material name.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Material</span>
+<span class="sd">            Removed material.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the material is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not registered.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.get">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a registered material by name.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Registered material name.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Material</span>
+<span class="sd">            Matching material.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the material is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not registered.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.get_by_id">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.get_by_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dort_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the material assigned to an internal ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dort_id : int</span>
+<span class="sd">            Internal material identifier.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Material</span>
+<span class="sd">            Material carrying the requested ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no material uses the ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">material</span><span class="o">.</span><span class="n">dort_id</span> <span class="o">==</span> <span class="n">dort_id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">material</span>
+
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No material is registered with DORT ID </span><span class="si">{</span><span class="n">dort_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.get_id">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.get_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the internal ID associated with a material name.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Registered material name.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Internal material ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the material is not registered.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">dort_id</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.has_name">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.has_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test whether a material name is registered.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            Material name.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when the name exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.has_id">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.has_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dort_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test whether an internal material ID is already in use.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dort_id : int</span>
+<span class="sd">            Candidate internal ID.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` when the ID is assigned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">material</span><span class="o">.</span><span class="n">dort_id</span> <span class="o">==</span> <span class="n">dort_id</span>
+            <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return registered material names in insertion order.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of str</span>
+<span class="sd">            Material names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return internal material IDs in insertion order.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of int</span>
+<span class="sd">            Material IDs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">material</span><span class="o">.</span><span class="n">dort_id</span>
+            <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">materials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Material</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return registered material objects in insertion order.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of Material</span>
+<span class="sd">            Registered materials.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="MaterialRegistry.validate">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the complete registry.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If duplicate names, duplicate IDs, or a non-positive ID is detected.</span>
+<span class="sd">        </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Registration methods already enforce these constraints; this method provides</span>
+<span class="sd">        a defensive whole-registry check before model building.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">material</span><span class="o">.</span><span class="n">dort_id</span> <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duplicate material names detected.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ids</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duplicate DORT material IDs detected.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">material</span><span class="o">.</span><span class="n">dort_id</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Material </span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> has invalid &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;DORT ID </span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">dort_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MaterialRegistry.clear">
+<a class="viewcode-back" href="../api/materials.html#materials.MaterialRegistry.clear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove all registered materials.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Material</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Material</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">material</span><span class="o">.</span><span class="n">dort_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">material</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_materials</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;MaterialRegistry(</span><span class="se">{{</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="se">}}</span><span class="s2">)&quot;</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Small demonstration / smoke test.</span>
+    <span class="n">materials</span> <span class="o">=</span> <span class="n">MaterialRegistry</span><span class="p">()</span>
+
+    <span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="s2">&quot;Sodium&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Primary/background coolant&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="s2">&quot;SS316&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stainless-steel shielding material&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="s2">&quot;B4C&quot;</span><span class="p">,</span>
+        <span class="n">dort_id</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Boron-carbide shielding material&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ID 3 is still unused, so automatic numbering should choose it.</span>
+    <span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Air&quot;</span><span class="p">)</span>
+
+    <span class="n">materials</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">materials</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Names :&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IDs   :&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="o">.</span><span class="n">ids</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SS316      :&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="p">[</span><span class="s2">&quot;SS316&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;B4C ID     :&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="o">.</span><span class="n">get_id</span><span class="p">(</span><span class="s2">&quot;B4C&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Material 10:&quot;</span><span class="p">,</span> <span class="n">materials</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Anupam Chakraborty.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

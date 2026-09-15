@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Materials API &mdash; DORT R-Z Input Preparation API 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Regions API" href="regions.html" />
+    <link rel="prev" title="Mesh API" href="mesh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DORT R-Z Input Preparation API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#minimal-example">Minimal example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#quadrature-stage">Quadrature stage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started.html#recommended-practice">Recommended practice</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#current-import-model">Current import model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#documentation-dependencies">Documentation dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#read-the-docs">Read the Docs</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/mesh.html">Mesh Definition</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#piecewise-uniform-segments">Piecewise-uniform segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#segment-by-number-of-cells">Segment by number of cells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#explicit-mesh-boundaries">Explicit mesh boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#useful-properties">Useful properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mesh.html#array-convention">Array convention</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/materials.html">Materials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registering-materials">Registering materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#registry-access">Registry access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/materials.html#internal-material-ids-versus-dort-library-numbers">Internal material IDs versus DORT library numbers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/regions.html">Regions and Priority Filling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#rectangular-r-z-regions">Rectangular R-Z regions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#cell-centre-membership">Cell-centre membership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#background-material">Background material</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#priority-model">Priority model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/regions.html#equal-priority-overlap">Equal-priority overlap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/building.html">Building and Validating a Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#build-operations">Build operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#strict-region-bounds">Strict region bounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/building.html#unfilled-cells">Unfilled cells</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/inspection.html">Inspecting the Built Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#main-result-arrays">Main result arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#material-maps">Material maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#region-ownership">Region ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#inspecting-one-cell">Inspecting one cell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/inspection.html#cell-count-summaries">Cell-count summaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/plotting.html">Plotting and Visual Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#material-map">Material map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#region-map">Region map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#convenience-save-functions">Convenience save functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plotting.html#recommended-verification">Recommended verification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quadrature.html">Quadrature-Set Calculation and DORT Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#processing-position">Processing position</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#dort-directional-arrays">DORT directional arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#basic-validation">Basic validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#fixed-versus-variable-quadrature">Fixed versus variable quadrature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#compatibility-warning-for-non-classical-quadratures">Compatibility warning for non-classical quadratures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quadrature.html#documentation-integration">Documentation integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_writer.html">DORT Writer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policies">Zone policies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-region"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;region&quot;</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/dort_writer.html#zone-policy-material"><code class="docutils literal notranslate"><span class="pre">zone_policy=&quot;material&quot;</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#generated-arrays">Generated arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#control-values">Control values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_writer.html#writing-a-block-4-fragment">Writing a Block-4 fragment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/dort_mapping.html">DORT Array Mapping and Ordering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#internal-array-layout">Internal array layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#serialization-order">Serialization order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#zone-to-material-mapping">Zone-to-material mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/dort_mapping.html#validation-recommendation">Validation recommendation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/basic_model.html">Basic Model Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/external_material_numbers.html">Using DORT Cross-Section Material Numbers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#mesh.MeshAxis"><code class="docutils literal notranslate"><span class="pre">MeshAxis</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.name"><code class="docutils literal notranslate"><span class="pre">MeshAxis.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.edges</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.centers"><code class="docutils literal notranslate"><span class="pre">MeshAxis.centers</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.widths"><code class="docutils literal notranslate"><span class="pre">MeshAxis.widths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.n_cells"><code class="docutils literal notranslate"><span class="pre">MeshAxis.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.bounds"><code class="docutils literal notranslate"><span class="pre">MeshAxis.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.is_defined"><code class="docutils literal notranslate"><span class="pre">MeshAxis.is_defined</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.clear"><code class="docutils literal notranslate"><span class="pre">MeshAxis.clear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.add_segment"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_segment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.add_edges"><code class="docutils literal notranslate"><span class="pre">MeshAxis.add_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.MeshAxis.validate"><code class="docutils literal notranslate"><span class="pre">MeshAxis.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#mesh.Mesh"><code class="docutils literal notranslate"><span class="pre">Mesh</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.r"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.z"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id0"><code class="docutils literal notranslate"><span class="pre">Mesh.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id1"><code class="docutils literal notranslate"><span class="pre">Mesh.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.shape"><code class="docutils literal notranslate"><span class="pre">Mesh.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.n_cells"><code class="docutils literal notranslate"><span class="pre">Mesh.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#mesh.Mesh.validate"><code class="docutils literal notranslate"><span class="pre">Mesh.validate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Materials API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#materials.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#materials.Material.name"><code class="docutils literal notranslate"><span class="pre">Material.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.Material.dort_id"><code class="docutils literal notranslate"><span class="pre">Material.dort_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.Material.description"><code class="docutils literal notranslate"><span class="pre">Material.description</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#materials.MaterialRegistry"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.add"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.replace"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.replace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.remove"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.get"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.get_by_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_by_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.get_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.get_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.has_name"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_name()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.has_id"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.has_id()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.names"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.ids"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.materials"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.validate"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#materials.MaterialRegistry.clear"><code class="docutils literal notranslate"><span class="pre">MaterialRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.name"><code class="docutils literal notranslate"><span class="pre">Region.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.material"><code class="docutils literal notranslate"><span class="pre">Region.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r"><code class="docutils literal notranslate"><span class="pre">Region.r</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z"><code class="docutils literal notranslate"><span class="pre">Region.z</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.priority"><code class="docutils literal notranslate"><span class="pre">Region.priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.enabled"><code class="docutils literal notranslate"><span class="pre">Region.enabled</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.description"><code class="docutils literal notranslate"><span class="pre">Region.description</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r_min"><code class="docutils literal notranslate"><span class="pre">Region.r_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.r_max"><code class="docutils literal notranslate"><span class="pre">Region.r_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z_min"><code class="docutils literal notranslate"><span class="pre">Region.z_min</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.z_max"><code class="docutils literal notranslate"><span class="pre">Region.z_max</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.bounds"><code class="docutils literal notranslate"><span class="pre">Region.bounds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.mask"><code class="docutils literal notranslate"><span class="pre">Region.mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.n_cells"><code class="docutils literal notranslate"><span class="pre">Region.n_cells()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.intersects_mesh"><code class="docutils literal notranslate"><span class="pre">Region.intersects_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.is_within_mesh"><code class="docutils literal notranslate"><span class="pre">Region.is_within_mesh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.Region.overlaps"><code class="docutils literal notranslate"><span class="pre">Region.overlaps()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#regions.RegionRegistry"><code class="docutils literal notranslate"><span class="pre">RegionRegistry</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.add"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.add()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.get"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.remove"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.names"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.names</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.regions"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.sorted_by_priority"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.sorted_by_priority()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="regions.html#regions.RegionRegistry.clear"><code class="docutils literal notranslate"><span class="pre">RegionRegistry.clear()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Model API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="model.html#model.BuildSummary"><code class="docutils literal notranslate"><span class="pre">BuildSummary</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.model_name"><code class="docutils literal notranslate"><span class="pre">BuildSummary.model_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.shape"><code class="docutils literal notranslate"><span class="pre">BuildSummary.shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_cells"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_cells</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_materials"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.n_regions"><code class="docutils literal notranslate"><span class="pre">BuildSummary.n_regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.background_material"><code class="docutils literal notranslate"><span class="pre">BuildSummary.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.BuildSummary.warnings"><code class="docutils literal notranslate"><span class="pre">BuildSummary.warnings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="model.html#model.DORTModel"><code class="docutils literal notranslate"><span class="pre">DORTModel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.mesh"><code class="docutils literal notranslate"><span class="pre">DORTModel.mesh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.materials"><code class="docutils literal notranslate"><span class="pre">DORTModel.materials</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.regions"><code class="docutils literal notranslate"><span class="pre">DORTModel.regions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.add_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_material()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.add_region"><code class="docutils literal notranslate"><span class="pre">DORTModel.add_region()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.background_material"><code class="docutils literal notranslate"><span class="pre">DORTModel.background_material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.set_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.set_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.clear_background"><code class="docutils literal notranslate"><span class="pre">DORTModel.clear_background()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.is_built"><code class="docutils literal notranslate"><span class="pre">DORTModel.is_built</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_id_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_id_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_name_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_name_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.region_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.priority_map"><code class="docutils literal notranslate"><span class="pre">DORTModel.priority_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.warnings"><code class="docutils literal notranslate"><span class="pre">DORTModel.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.validate"><code class="docutils literal notranslate"><span class="pre">DORTModel.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.build"><code class="docutils literal notranslate"><span class="pre">DORTModel.build()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.cell_assignment"><code class="docutils literal notranslate"><span class="pre">DORTModel.cell_assignment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.material_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.material_cell_counts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="model.html#model.DORTModel.region_cell_counts"><code class="docutils literal notranslate"><span class="pre">DORTModel.region_cell_counts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature.html">Quadrature API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature-py">quadrature.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#dort-arrays">DORT arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#recommended-usage">Recommended usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#notes-on-high-order-calculations">Notes on high-order calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.valid"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.valid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.errors"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.errors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.warnings"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.warnings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.minimum_nonzero_weight"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.minimum_nonzero_weight</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.maximum_sphere_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_sphere_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.maximum_level_current"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_level_current</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureValidation.text"><code class="docutils literal notranslate"><span class="pre">QuadratureValidation.text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet"><code class="docutils literal notranslate"><span class="pre">QuadratureSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.family"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.family</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.radial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.radial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.axial_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.weights"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.reference_moments"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.reference_moments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.metadata"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.mu"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.mu</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.eta"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.eta</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.integration_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.integration_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.zero_weight_direction_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.zero_weight_direction_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.weight_sum"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.weight_sum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.third_cosine"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.third_cosine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.axial_level_count"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.axial_level_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.moment_value"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.moment_table"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.maximum_moment_error"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.maximum_moment_error</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.moment_table_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.moment_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.validate"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.validation_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.validation_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.array81"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array81()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.array82"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array82()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.array83"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.array83()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.dort_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.dort_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.write_dort"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.write_dort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature.html#quadrature.QuadratureSet.summary_text"><code class="docutils literal notranslate"><span class="pre">QuadratureSet.summary_text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature.generate_legacy_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_legacy_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature.generate_product_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_product_quadrature()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html#quadrature.generate_quadrature"><code class="docutils literal notranslate"><span class="pre">generate_quadrature()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature_plotting.html">Quadrature Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature-plotting-py">quadrature_plotting.py</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quadrature_plotting.html#provided-plotting-styles">Provided plotting styles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quadrature_plotting.html#typical-usage">Typical usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_quadrature_set"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_set()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_quadrature_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_weight_distribution"><code class="docutils literal notranslate"><span class="pre">plot_weight_distribution()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_weight_distribution_plot"><code class="docutils literal notranslate"><span class="pre">save_weight_distribution_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.plot_quadrature_3d"><code class="docutils literal notranslate"><span class="pre">plot_quadrature_3d()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature_plotting.html#quadrature_plotting.save_quadrature_3d_plot"><code class="docutils literal notranslate"><span class="pre">save_quadrature_3d_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.plot_materials"><code class="docutils literal notranslate"><span class="pre">plot_materials()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.plot_regions"><code class="docutils literal notranslate"><span class="pre">plot_regions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.save_material_plot"><code class="docutils literal notranslate"><span class="pre">save_material_plot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html#plotting.save_region_plot"><code class="docutils literal notranslate"><span class="pre">save_region_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="writer.html">Writer API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.ZoneDefinition"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.zone_id"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.zone_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.owner"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.owner</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.material"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.material_number"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.material_number</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneDefinition.n_cells"><code class="docutils literal notranslate"><span class="pre">ZoneDefinition.n_cells</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.ZoneData"><code class="docutils literal notranslate"><span class="pre">ZoneData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.zone_map"><code class="docutils literal notranslate"><span class="pre">ZoneData.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.zones"><code class="docutils literal notranslate"><span class="pre">ZoneData.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.ZoneData.izm"><code class="docutils literal notranslate"><span class="pre">ZoneData.izm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="writer.html#writer.DORTWriter"><code class="docutils literal notranslate"><span class="pre">DORTWriter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.im"><code class="docutils literal notranslate"><span class="pre">DORTWriter.im</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.jm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.jm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.izm"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zones"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zones</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zone_map"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_map</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.required_control_values"><code class="docutils literal notranslate"><span class="pre">DORTWriter.required_control_values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.material_number"><code class="docutils literal notranslate"><span class="pre">DORTWriter.material_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.ijzn_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.ijzn_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.izmt_stream"><code class="docutils literal notranslate"><span class="pre">DORTWriter.izmt_stream()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array2"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array4"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array4()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array8"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array8()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array9"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array9()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.array84_identity"><code class="docutils literal notranslate"><span class="pre">DORTWriter.array84_identity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.block4_geometry_material_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.block4_geometry_material_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.write_block4_fragment"><code class="docutils literal notranslate"><span class="pre">DORTWriter.write_block4_fragment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.zone_table_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.zone_table_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="writer.html#writer.DORTWriter.summary_text"><code class="docutils literal notranslate"><span class="pre">DORTWriter.summary_text()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../limitations.html">Current Limitations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../limitations.html#quadrature-status">Quadrature status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#template-deck-handling">Template/deck handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#additional-geometry-primitives">Additional geometry primitives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#material-library-integration">Material-library integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#alternative-user-frontends">Alternative user frontends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../roadmap.html#quadrature-integration">Quadrature integration</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DORT R-Z Input Preparation API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Materials API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/materials.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="materials-api">
+<h1>Materials API<a class="headerlink" href="#materials-api" title="Link to this heading"></a></h1>
+<p>Material objects and material registry.</p>
+<p id="module-materials">Material definitions and registry utilities for DORT input preparation.</p>
+<p>The module manages readable material names and positive internal material IDs.
+It deliberately contains no geometry or DORT/FIDO writing logic.</p>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">Material.dort_id</span></code> is an internal project identifier.  A DORT/GIP
+cross-section library may use a different, including negative, material
+number.  Such external numbers are supplied separately to <code class="docutils literal notranslate"><span class="pre">DORTWriter</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="materials.Material">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">materials.</span></span><span class="sig-name descname"><span class="pre">Material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dort_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#Material"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.Material" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Represent one physical material registered in a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Human-readable material name, for example <code class="docutils literal notranslate"><span class="pre">&quot;SS316&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Sodium&quot;</span></code>.</p></li>
+<li><p><strong>dort_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Positive internal identifier used in the built material map.</p></li>
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Free-text description of the material.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dort_id</span></code> is not an integer.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">name</span></code> is empty or <code class="docutils literal notranslate"><span class="pre">dort_id</span></code> is not positive.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The dataclass is frozen so a registered material cannot be modified
+accidentally.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="materials.Material.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#materials.Material.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="materials.Material.dort_id">
+<span class="sig-name descname"><span class="pre">dort_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#materials.Material.dort_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="materials.Material.description">
+<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#materials.Material.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="materials.MaterialRegistry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">materials.</span></span><span class="sig-name descname"><span class="pre">MaterialRegistry</span></span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Manage a collection of uniquely named materials and internal IDs.</p>
+<p>Materials are stored in insertion order. Names are case-sensitive.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">materials</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaterialRegistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">materials</span> <span class="o">=</span> <span class="n">MaterialRegistry</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Sodium&quot;</span><span class="p">)</span>
+<span class="go">Material(name=&#39;Sodium&#39;, dort_id=1, description=&#39;&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">materials</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;B4C&quot;</span><span class="p">,</span> <span class="n">dort_id</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">Material(name=&#39;B4C&#39;, dort_id=10, description=&#39;&#39;)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dort_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.add" title="Link to this definition"></a></dt>
+<dd><p>Create and register a material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Unique material name.</p></li>
+<li><p><strong>dort_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Positive internal ID. If omitted, the smallest available positive integer
+is selected automatically.</p></li>
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Free-text material description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Newly registered immutable material object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dort_id</span></code> is provided but is not an integer.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the name is empty/already registered, or the requested ID is
+    non-positive/already used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dort_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.replace" title="Link to this definition"></a></dt>
+<dd><p>Replace the definition of an existing material.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the registered material to replace.</p></li>
+<li><p><strong>dort_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – New positive internal ID. <code class="docutils literal notranslate"><span class="pre">None</span></code> preserves the existing ID.</p></li>
+<li><p><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – New description. <code class="docutils literal notranslate"><span class="pre">None</span></code> preserves the existing description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Replacement immutable material object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">name</span></code> is not registered.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If the resulting ID is not an integer.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the resulting ID is non-positive or already assigned to another
+    material.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.remove" title="Link to this definition"></a></dt>
+<dd><p>Remove a material by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Registered material name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Removed material.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the material is not registered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.get" title="Link to this definition"></a></dt>
+<dd><p>Return a registered material by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Registered material name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matching material.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the material is not registered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.get_by_id">
+<span class="sig-name descname"><span class="pre">get_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dort_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.get_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.get_by_id" title="Link to this definition"></a></dt>
+<dd><p>Return the material assigned to an internal ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dort_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Internal material identifier.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Material carrying the requested ID.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If no material uses the ID.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.get_id">
+<span class="sig-name descname"><span class="pre">get_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.get_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.get_id" title="Link to this definition"></a></dt>
+<dd><p>Return the internal ID associated with a material name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Registered material name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Internal material ID.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the material is not registered.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.has_name">
+<span class="sig-name descname"><span class="pre">has_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.has_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.has_name" title="Link to this definition"></a></dt>
+<dd><p>Test whether a material name is registered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Material name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> when the name exists.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.has_id">
+<span class="sig-name descname"><span class="pre">has_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dort_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.has_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.has_id" title="Link to this definition"></a></dt>
+<dd><p>Test whether an internal material ID is already in use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dort_id</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Candidate internal ID.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> when the ID is assigned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.names">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">names</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#materials.MaterialRegistry.names" title="Link to this definition"></a></dt>
+<dd><p>Return registered material names in insertion order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Material names.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.ids">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#materials.MaterialRegistry.ids" title="Link to this definition"></a></dt>
+<dd><p>Return internal material IDs in insertion order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Material IDs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.materials">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">materials</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#materials.Material" title="materials.Material"><span class="pre">Material</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#materials.MaterialRegistry.materials" title="Link to this definition"></a></dt>
+<dd><p>Return registered material objects in insertion order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Registered materials.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a> of <a class="reference internal" href="#materials.Material" title="materials.Material">Material</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.validate" title="Link to this definition"></a></dt>
+<dd><p>Validate the complete registry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If duplicate names, duplicate IDs, or a non-positive ID is detected.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Registration methods already enforce these constraints; this method provides
+a defensive whole-registry check before model building.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="materials.MaterialRegistry.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/materials.html#MaterialRegistry.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#materials.MaterialRegistry.clear" title="Link to this definition"></a></dt>
+<dd><p>Remove all registered materials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mesh.html" class="btn btn-neutral float-left" title="Mesh API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="regions.html" class="btn btn-neutral float-right" title="Regions API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Anupam Chakraborty.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
