@@ -1,25 +1,9 @@
-"""
-plotting.py
-===========
+"""Plotting helpers for built DORT R-Z models.
 
-Plotting helpers for the DORT preparation API.
+The functions in this module visualize final material filling and region
+ownership. They do not alter the model.
 
-This module visualizes already-built DORTModel objects. It deliberately does
-not modify geometry, materials, or region assignments.
-
-Two main plots are provided:
-
-    plot_materials(model)
-        Shows the final material filling.
-
-    plot_regions(model)
-        Shows the final region ownership after priority overwriting.
-
-The array convention is always:
-
-    shape = (nz, nr)
-
-with R on the horizontal axis and Z on the vertical axis.
+R is plotted on the horizontal axis and Z on the vertical axis.
 """
 
 from __future__ import annotations
@@ -36,7 +20,22 @@ from model import DORTModel
 
 
 def _require_built(model: DORTModel) -> None:
-    """Raise if the model has not yet been built."""
+    """Require a built model before plotting.
+    
+    Parameters
+    ----------
+    model : DORTModel
+        Model to check.
+    
+    Returns
+    -------
+    None
+    
+    Raises
+    ------
+    RuntimeError
+        If ``model.build()`` has not been completed successfully.
+    """
     if not model.is_built:
         raise RuntimeError(
             "The model must be built before plotting. "
@@ -48,22 +47,21 @@ def _discrete_index_map(
     values: np.ndarray,
     labels: Iterable[str],
 ) -> tuple[np.ndarray, dict[str, int]]:
-    """
-    Convert an object/string array to integer category indices.
-
+    """Convert categorical labels to integer plotting indices.
+    
     Parameters
     ----------
-    values
-        Array of string-like labels.
-    labels
-        Ordered category labels.
-
+    values : numpy.ndarray
+        Array containing string-like category labels.
+    labels : iterable of str
+        Ordered set of valid category labels.
+    
     Returns
     -------
-    indexed
+    indexed : numpy.ndarray
         Integer array with the same shape as ``values``.
-    label_to_index
-        Mapping from label to integer category index.
+    label_to_index : dict of str to int
+        Mapping from category label to plotting index.
     """
     labels = tuple(labels)
     label_to_index = {
@@ -88,29 +86,36 @@ def plot_materials(
     show_ids: bool = False,
     legend: bool = True,
 ) -> tuple[Figure, Axes]:
-    """
-    Plot the final material filling in R-Z coordinates.
-
+    """Plot final material filling in R-Z coordinates.
+    
     Parameters
     ----------
-    model
-        Built DORTModel.
-    ax
-        Existing Matplotlib axes. If omitted, a new figure is created.
-    title
-        Optional plot title. Defaults to ``"<model name> - material map"``.
-    show_mesh
-        If True, draw mesh-cell boundaries.
-    show_ids
-        If True, annotate each mesh cell with its DORT material ID.
-        Best used only for small meshes.
-    legend
-        If True, show a material legend.
-
+    model : DORTModel
+        Built model.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes. A new figure/axes pair is created when omitted.
+    title : str, optional
+        Plot title. Defaults to ``"<model name> - material map"``.
+    show_mesh : bool, optional
+        Draw fine-mesh cell boundaries.
+    show_ids : bool, optional
+        Annotate cells with internal material IDs. Intended for small meshes.
+    legend : bool, optional
+        Display the material legend.
+    
     Returns
     -------
-    fig, ax
-        Matplotlib figure and axes.
+    fig : matplotlib.figure.Figure
+        Figure containing the plot.
+    ax : matplotlib.axes.Axes
+        Axes containing the plot.
+    
+    Raises
+    ------
+    RuntimeError
+        If the model has not been built.
+    ValueError
+        If a final material label cannot be mapped to a plotted category.
     """
     _require_built(model)
 
@@ -226,11 +231,39 @@ def plot_regions(
     show_mesh: bool = False,
     legend: bool = True,
 ) -> tuple[Figure, Axes]:
-    """
-    Plot final region ownership in R-Z coordinates.
-
-    This differs from ``plot_materials`` because two different geometric
-    regions may contain the same physical material.
+    """Plot final region ownership in R-Z coordinates.
+    
+    Parameters
+    ----------
+    model : DORTModel
+        Built model.
+    ax : matplotlib.axes.Axes, optional
+        Existing axes. A new figure/axes pair is created when omitted.
+    title : str, optional
+        Plot title. Defaults to ``"<model name> - region map"``.
+    show_mesh : bool, optional
+        Draw fine-mesh cell boundaries.
+    legend : bool, optional
+        Display the region legend.
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure containing the plot.
+    ax : matplotlib.axes.Axes
+        Axes containing the plot.
+    
+    Raises
+    ------
+    RuntimeError
+        If the model has not been built.
+    ValueError
+        If a final owner label cannot be mapped to a plotted category.
+    
+    Notes
+    -----
+    This plot preserves geometric-region identity even when two distinct regions
+    use the same physical material.
     """
     _require_built(model)
 
@@ -330,8 +363,24 @@ def save_material_plot(
     show_mesh: bool = False,
     show_ids: bool = False,
 ) -> None:
-    """
-    Save a material-map plot directly to disk.
+    """Create and save a material-map plot.
+    
+    Parameters
+    ----------
+    model : DORTModel
+        Built model.
+    filename : str or path-like
+        Output image path accepted by Matplotlib.
+    dpi : int, optional
+        Output resolution in dots per inch.
+    show_mesh : bool, optional
+        Draw fine-mesh boundaries.
+    show_ids : bool, optional
+        Annotate cells with internal material IDs.
+    
+    Returns
+    -------
+    None
     """
     fig, _ = plot_materials(
         model,
@@ -355,8 +404,22 @@ def save_region_plot(
     dpi: int = 200,
     show_mesh: bool = False,
 ) -> None:
-    """
-    Save a region-map plot directly to disk.
+    """Create and save a region-ownership plot.
+    
+    Parameters
+    ----------
+    model : DORTModel
+        Built model.
+    filename : str or path-like
+        Output image path accepted by Matplotlib.
+    dpi : int, optional
+        Output resolution in dots per inch.
+    show_mesh : bool, optional
+        Draw fine-mesh boundaries.
+    
+    Returns
+    -------
+    None
     """
     fig, _ = plot_regions(
         model,

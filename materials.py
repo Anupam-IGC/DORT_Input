@@ -1,25 +1,13 @@
-"""
-materials.py
-============
+"""Material definitions and registry utilities for DORT input preparation.
 
-Material definitions and registry utilities for the DORT preparation API.
+The module manages readable material names and positive internal material IDs.
+It deliberately contains no geometry or DORT/FIDO writing logic.
 
-This module deliberately does not contain any geometry or DORT input-writing
-logic. Its job is only to manage material objects, names, and numerical IDs.
-
-Example
--------
-from materials import MaterialRegistry
-
-materials = MaterialRegistry()
-
-materials.add("Sodium")
-materials.add("SS316")
-materials.add("B4C", dort_id=10)
-
-print(materials["SS316"])
-print(materials.get_id("B4C"))
-print(materials.names)
+Notes
+-----
+``Material.dort_id`` is an internal project identifier.  A DORT/GIP
+cross-section library may use a different, including negative, material
+number.  Such external numbers are supplied separately to ``DORTWriter``.
 """
 
 from __future__ import annotations
@@ -30,23 +18,28 @@ from typing import Iterator
 
 @dataclass(frozen=True)
 class Material:
-    """
-    Representation of one physical material.
-
+    """Represent one physical material registered in a model.
+    
     Parameters
     ----------
-    name
-        Human-readable material name, e.g. ``"SS316"`` or ``"Sodium"``.
-    dort_id
-        Positive integer ID used when exporting to DORT.
-    description
-        Optional explanatory text.
-
+    name : str
+        Human-readable material name, for example ``"SS316"`` or ``"Sodium"``.
+    dort_id : int
+        Positive internal identifier used in the built material map.
+    description : str, optional
+        Free-text description of the material.
+    
+    Raises
+    ------
+    TypeError
+        If ``dort_id`` is not an integer.
+    ValueError
+        If ``name`` is empty or ``dort_id`` is not positive.
+    
     Notes
     -----
-    The dataclass is frozen so that a material already registered in a model
-    cannot be modified accidentally. If a definition needs to change, replace
-    it explicitly through the registry.
+    The dataclass is frozen so a registered material cannot be modified
+    accidentally.
     """
 
     name: str
@@ -78,20 +71,17 @@ class Material:
 
 
 class MaterialRegistry:
-    """
-    Collection that manages materials and unique DORT material IDs.
-
-    Materials are stored by name. Names are matched case-sensitively by default;
-    this avoids silently treating distinct user labels as the same material.
-
+    """Manage a collection of uniquely named materials and internal IDs.
+    
+    Materials are stored in insertion order. Names are case-sensitive.
+    
     Examples
     --------
-    >>> registry = MaterialRegistry()
-    >>> registry.add("Sodium")
+    >>> from materials import MaterialRegistry
+    >>> materials = MaterialRegistry()
+    >>> materials.add("Sodium")
     Material(name='Sodium', dort_id=1, description='')
-    >>> registry.add("SS316")
-    Material(name='SS316', dort_id=2, description='')
-    >>> registry.add("B4C", dort_id=10)
+    >>> materials.add("B4C", dort_id=10)
     Material(name='B4C', dort_id=10, description='')
     """
 
@@ -99,7 +89,13 @@ class MaterialRegistry:
         self._materials: dict[str, Material] = {}
 
     def _next_available_id(self) -> int:
-        """Return the smallest positive integer not already assigned."""
+        """Return the smallest unused positive internal material ID.
+        
+        Returns
+        -------
+        int
+            Smallest positive integer not currently assigned.
+        """
         used = {material.dort_id for material in self._materials.values()}
 
         candidate = 1
@@ -115,16 +111,30 @@ class MaterialRegistry:
         dort_id: int | None = None,
         description: str = "",
     ) -> Material:
-        """
-        Add and return a new material.
-
-        If ``dort_id`` is omitted, the smallest unused positive integer is
-        assigned automatically.
-
+        """Create and register a material.
+        
+        Parameters
+        ----------
+        name : str
+            Unique material name.
+        dort_id : int, optional
+            Positive internal ID. If omitted, the smallest available positive integer
+            is selected automatically.
+        description : str, optional
+            Free-text material description.
+        
+        Returns
+        -------
+        Material
+            Newly registered immutable material object.
+        
         Raises
         ------
+        TypeError
+            If ``dort_id`` is provided but is not an integer.
         ValueError
-            If the name already exists or the requested ID is already used.
+            If the name is empty/already registered, or the requested ID is
+            non-positive/already used.
         """
         clean_name = str(name).strip()
 
@@ -170,10 +180,31 @@ class MaterialRegistry:
         dort_id: int | None = None,
         description: str | None = None,
     ) -> Material:
-        """
-        Replace an existing material definition.
-
-        Any argument left as ``None`` keeps its current value.
+        """Replace the definition of an existing material.
+        
+        Parameters
+        ----------
+        name : str
+            Name of the registered material to replace.
+        dort_id : int, optional
+            New positive internal ID. ``None`` preserves the existing ID.
+        description : str, optional
+            New description. ``None`` preserves the existing description.
+        
+        Returns
+        -------
+        Material
+            Replacement immutable material object.
+        
+        Raises
+        ------
+        KeyError
+            If ``name`` is not registered.
+        TypeError
+            If the resulting ID is not an integer.
+        ValueError
+            If the resulting ID is non-positive or already assigned to another
+            material.
         """
         if name not in self._materials:
             raise KeyError(f"Material {name!r} is not registered.")
@@ -208,21 +239,69 @@ class MaterialRegistry:
         return updated
 
     def remove(self, name: str) -> Material:
-        """Remove and return a material."""
+        """Remove a material by name.
+        
+        Parameters
+        ----------
+        name : str
+            Registered material name.
+        
+        Returns
+        -------
+        Material
+            Removed material.
+        
+        Raises
+        ------
+        KeyError
+            If the material is not registered.
+        """
         try:
             return self._materials.pop(name)
         except KeyError as exc:
             raise KeyError(f"Material {name!r} is not registered.") from exc
 
     def get(self, name: str) -> Material:
-        """Return a material by name."""
+        """Return a registered material by name.
+        
+        Parameters
+        ----------
+        name : str
+            Registered material name.
+        
+        Returns
+        -------
+        Material
+            Matching material.
+        
+        Raises
+        ------
+        KeyError
+            If the material is not registered.
+        """
         try:
             return self._materials[name]
         except KeyError as exc:
             raise KeyError(f"Material {name!r} is not registered.") from exc
 
     def get_by_id(self, dort_id: int) -> Material:
-        """Return the material assigned to a DORT ID."""
+        """Return the material assigned to an internal ID.
+        
+        Parameters
+        ----------
+        dort_id : int
+            Internal material identifier.
+        
+        Returns
+        -------
+        Material
+            Material carrying the requested ID.
+        
+        Raises
+        ------
+        KeyError
+            If no material uses the ID.
+        """
         for material in self._materials.values():
             if material.dort_id == dort_id:
                 return material
@@ -230,15 +309,53 @@ class MaterialRegistry:
         raise KeyError(f"No material is registered with DORT ID {dort_id}.")
 
     def get_id(self, name: str) -> int:
-        """Return the DORT ID associated with a material name."""
+        """Return the internal ID associated with a material name.
+        
+        Parameters
+        ----------
+        name : str
+            Registered material name.
+        
+        Returns
+        -------
+        int
+            Internal material ID.
+        
+        Raises
+        ------
+        KeyError
+            If the material is not registered.
+        """
         return self.get(name).dort_id
 
     def has_name(self, name: str) -> bool:
-        """Return whether a material name is registered."""
+        """Test whether a material name is registered.
+        
+        Parameters
+        ----------
+        name : str
+            Material name.
+        
+        Returns
+        -------
+        bool
+            ``True`` when the name exists.
+        """
         return name in self._materials
 
     def has_id(self, dort_id: int) -> bool:
-        """Return whether a DORT material ID is already in use."""
+        """Test whether an internal material ID is already in use.
+        
+        Parameters
+        ----------
+        dort_id : int
+            Candidate internal ID.
+        
+        Returns
+        -------
+        bool
+            ``True`` when the ID is assigned.
+        """
         return any(
             material.dort_id == dort_id
             for material in self._materials.values()
@@ -246,12 +363,24 @@ class MaterialRegistry:
 
     @property
     def names(self) -> tuple[str, ...]:
-        """Registered material names in insertion order."""
+        """Return registered material names in insertion order.
+        
+        Returns
+        -------
+        tuple of str
+            Material names.
+        """
         return tuple(self._materials.keys())
 
     @property
     def ids(self) -> tuple[int, ...]:
-        """Registered DORT IDs in insertion order."""
+        """Return internal material IDs in insertion order.
+        
+        Returns
+        -------
+        tuple of int
+            Material IDs.
+        """
         return tuple(
             material.dort_id
             for material in self._materials.values()
@@ -259,15 +388,31 @@ class MaterialRegistry:
 
     @property
     def materials(self) -> tuple[Material, ...]:
-        """Registered Material objects in insertion order."""
+        """Return registered material objects in insertion order.
+        
+        Returns
+        -------
+        tuple of Material
+            Registered materials.
+        """
         return tuple(self._materials.values())
 
     def validate(self) -> None:
-        """
-        Validate all registered material definitions.
-
-        This is mostly defensive because ``add`` and ``replace`` already
-        enforce the same constraints.
+        """Validate the complete registry.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If duplicate names, duplicate IDs, or a non-positive ID is detected.
+        
+        Notes
+        -----
+        Registration methods already enforce these constraints; this method provides
+        a defensive whole-registry check before model building.
         """
         names = list(self._materials.keys())
         ids = [material.dort_id for material in self._materials.values()]
@@ -286,7 +431,12 @@ class MaterialRegistry:
                 )
 
     def clear(self) -> None:
-        """Remove all registered materials."""
+        """Remove all registered materials.
+        
+        Returns
+        -------
+        None
+        """
         self._materials.clear()
 
     def __contains__(self, name: str) -> bool:

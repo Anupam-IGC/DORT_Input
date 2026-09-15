@@ -1,40 +1,11 @@
-"""
-regions.py
-==========
+"""Geometric region definitions for DORT R-Z input preparation.
 
-Geometric region definitions for the DORT preparation API.
+A region describes a rectangular physical area in cylindrical R-Z space using
+a readable material name. Region objects generate Boolean masks over a
+:class:`mesh.Mesh`; material-ID assignment is performed later by
+:class:`model.DORTModel`.
 
-A Region describes a physical rectangular area in R-Z space using readable
-material names. It does not assign DORT IDs itself. Its main responsibility is
-to generate a Boolean mask over a Mesh.
-
-The convention used throughout the API is
-
-    mask.shape == (nz, nr)
-
-so axis 0 corresponds to Z and axis 1 corresponds to R.
-
-Example
--------
-from mesh import Mesh
-from regions import Region
-
-mesh = Mesh()
-mesh.r.add_segment(0.0, 200.0, step=10.0)
-mesh.z.add_segment(-100.0, 100.0, step=10.0)
-
-core = Region(
-    name="core",
-    material="Core",
-    r=(0.0, 100.0),
-    z=(-50.0, 50.0),
-    priority=20,
-)
-
-mask = core.mask(mesh)
-
-print(mask.shape)
-print(mask.sum())
+All masks use shape ``(nz, nr)``.
 """
 
 from __future__ import annotations
@@ -49,36 +20,42 @@ from mesh import Mesh
 
 @dataclass(frozen=True)
 class Region:
-    """
-    Rectangular region in cylindrical R-Z geometry.
-
+    """Represent a rectangular region in cylindrical R-Z geometry.
+    
     Parameters
     ----------
-    name
-        Unique human-readable region name.
-    material
+    name : str
+        Unique region name.
+    material : str
         Name of the material assigned to the region.
-    r
+    r : tuple of float
         Radial bounds ``(r_min, r_max)``.
-    z
+    z : tuple of float
         Axial bounds ``(z_min, z_max)``.
-    priority
-        Integer priority used later when several regions overlap.
-        Higher-priority regions will normally overwrite lower-priority ones.
-    enabled
-        Disabled regions remain defined but produce an empty mask.
-    description
-        Optional explanatory text.
-
+    priority : int, optional
+        Overwrite priority. Higher-priority regions overwrite lower-priority
+        regions during model construction.
+    enabled : bool, optional
+        If ``False``, the region remains registered but selects no cells.
+    description : str, optional
+        Free-text description.
+    
+    Raises
+    ------
+    TypeError
+        If ``priority`` is not an integer or ``enabled`` is not Boolean.
+    ValueError
+        If names/bounds are invalid, radial lower bound is negative, or a maximum
+        bound is not greater than its corresponding minimum.
+    
     Notes
     -----
-    Region membership is based on mesh-cell centres:
-
-        r_min <= r_center < r_max
-        z_min <= z_center < z_max
-
-    The upper bound is exclusive. This avoids double-counting cells when two
-    adjacent regions share a boundary.
+    Cell membership is centre-based and half-open:
+    
+    ``r_min <= r_center < r_max`` and
+    ``z_min <= z_center < z_max``.
+    
+    The exclusive upper bound prevents double assignment at shared boundaries.
     """
 
     name: str
@@ -153,40 +130,81 @@ class Region:
 
     @property
     def r_min(self) -> float:
+        """Return the lower radial bound.
+        
+        Returns
+        -------
+        float
+            Minimum R coordinate.
+        """
         return self.r[0]
 
     @property
     def r_max(self) -> float:
+        """Return the upper radial bound.
+        
+        Returns
+        -------
+        float
+            Maximum R coordinate.
+        """
         return self.r[1]
 
     @property
     def z_min(self) -> float:
+        """Return the lower axial bound.
+        
+        Returns
+        -------
+        float
+            Minimum Z coordinate.
+        """
         return self.z[0]
 
     @property
     def z_max(self) -> float:
+        """Return the upper axial bound.
+        
+        Returns
+        -------
+        float
+            Maximum Z coordinate.
+        """
         return self.z[1]
 
     @property
     def bounds(self) -> tuple[float, float, float, float]:
-        """
-        Return ``(r_min, r_max, z_min, z_max)``.
+        """Return all region bounds.
+        
+        Returns
+        -------
+        tuple of float
+            ``(r_min, r_max, z_min, z_max)``.
         """
         return self.r_min, self.r_max, self.z_min, self.z_max
 
     def mask(self, mesh: Mesh) -> np.ndarray:
-        """
-        Return a Boolean mask identifying cells belonging to this region.
-
+        """Return the mesh-cell mask selected by the region.
+        
         Parameters
         ----------
-        mesh
-            Valid R-Z mesh.
-
+        mesh : Mesh
+            Valid R-Z mesh on which region membership is evaluated.
+        
         Returns
         -------
         numpy.ndarray
-            Boolean array of shape ``(nz, nr)``.
+            Boolean array with shape ``(nz, nr)``.
+        
+        Raises
+        ------
+        ValueError
+            If the supplied mesh is invalid.
+        
+        Notes
+        -----
+        Membership is evaluated using mesh-cell centres rather than fractional
+        geometric intersection.
         """
         mesh.validate()
 
@@ -210,14 +228,37 @@ class Region:
         return z_mask[:, np.newaxis] & r_mask[np.newaxis, :]
 
     def n_cells(self, mesh: Mesh) -> int:
-        """Return the number of mesh cells selected by the region."""
+        """Return the number of mesh cells selected by the region.
+        
+        Parameters
+        ----------
+        mesh : Mesh
+            Valid R-Z mesh.
+        
+        Returns
+        -------
+        int
+            Number of ``True`` entries in :meth:`mask`.
+        """
         return int(np.count_nonzero(self.mask(mesh)))
 
     def intersects_mesh(self, mesh: Mesh) -> bool:
-        """
-        Return True if the geometric region overlaps the mesh domain.
-
-        This tests geometric bounds, not cell-centre selection.
+        """Test whether the geometric region intersects the mesh domain.
+        
+        Parameters
+        ----------
+        mesh : Mesh
+            Valid R-Z mesh.
+        
+        Returns
+        -------
+        bool
+            ``True`` when the continuous region bounds overlap the mesh bounds.
+        
+        Notes
+        -----
+        This is a geometric-bounds test; it does not guarantee that any cell centre is
+        selected.
         """
         mesh.validate()
 
@@ -237,7 +278,19 @@ class Region:
         return radial_overlap and axial_overlap
 
     def is_within_mesh(self, mesh: Mesh) -> bool:
-        """Return True if the entire region lies inside the mesh domain."""
+        """Test whether the full region lies inside the mesh domain.
+        
+        Parameters
+        ----------
+        mesh : Mesh
+            Valid R-Z mesh.
+        
+        Returns
+        -------
+        bool
+            ``True`` when all four region bounds lie within the corresponding mesh
+            bounds.
+        """
         mesh.validate()
 
         r_lo, r_hi = mesh.r.bounds
@@ -251,10 +304,21 @@ class Region:
         )
 
     def overlaps(self, other: "Region") -> bool:
-        """
-        Return True if two geometric regions have a non-zero-area overlap.
-
-        Merely touching at a shared boundary does not count as overlap.
+        """Test whether two regions have a non-zero-area geometric overlap.
+        
+        Parameters
+        ----------
+        other : Region
+            Region to compare with this region.
+        
+        Returns
+        -------
+        bool
+            ``True`` when radial and axial intervals overlap with non-zero extent.
+        
+        Notes
+        -----
+        Regions that only touch at a common boundary are not considered overlapping.
         """
         radial_overlap = (
             self.r_min < other.r_max
@@ -277,11 +341,10 @@ class Region:
 
 
 class RegionRegistry:
-    """
-    Ordered collection of uniquely named regions.
-
-    The registry stores regions in insertion order. Final priority processing
-    will be performed later by the DORTModel/build module.
+    """Store uniquely named regions in insertion order.
+    
+    Priority sorting is intentionally separate from insertion order. Equal-priority
+    cell overlaps are rejected later by :class:`model.DORTModel`.
     """
 
     def __init__(self) -> None:
@@ -298,8 +361,36 @@ class RegionRegistry:
         enabled: bool = True,
         description: str = "",
     ) -> Region:
-        """
-        Create, register, and return a Region.
+        """Create and register a rectangular region.
+        
+        Parameters
+        ----------
+        name : str
+            Unique region name.
+        material : str
+            Registered material name to be assigned later by the model.
+        r : tuple of float
+            Radial bounds ``(r_min, r_max)``.
+        z : tuple of float
+            Axial bounds ``(z_min, z_max)``.
+        priority : int, optional
+            Overwrite priority.
+        enabled : bool, optional
+            Whether the region participates in model building.
+        description : str, optional
+            Free-text description.
+        
+        Returns
+        -------
+        Region
+            Newly registered immutable region.
+        
+        Raises
+        ------
+        ValueError
+            If ``name`` is already registered or if the Region definition is invalid.
+        TypeError
+            If Region type constraints are violated.
         """
         clean_name = str(name).strip()
 
@@ -322,7 +413,23 @@ class RegionRegistry:
         return region
 
     def get(self, name: str) -> Region:
-        """Return a region by name."""
+        """Return a region by name.
+        
+        Parameters
+        ----------
+        name : str
+            Registered region name.
+        
+        Returns
+        -------
+        Region
+            Matching region.
+        
+        Raises
+        ------
+        KeyError
+            If no such region is registered.
+        """
         try:
             return self._regions[name]
         except KeyError as exc:
@@ -331,7 +438,23 @@ class RegionRegistry:
             ) from exc
 
     def remove(self, name: str) -> Region:
-        """Remove and return a region."""
+        """Remove a region by name.
+        
+        Parameters
+        ----------
+        name : str
+            Registered region name.
+        
+        Returns
+        -------
+        Region
+            Removed region.
+        
+        Raises
+        ------
+        KeyError
+            If no such region is registered.
+        """
         try:
             return self._regions.pop(name)
         except KeyError as exc:
@@ -341,21 +464,39 @@ class RegionRegistry:
 
     @property
     def names(self) -> tuple[str, ...]:
-        """Region names in insertion order."""
+        """Return region names in insertion order.
+        
+        Returns
+        -------
+        tuple of str
+            Registered names.
+        """
         return tuple(self._regions.keys())
 
     @property
     def regions(self) -> tuple[Region, ...]:
-        """Region objects in insertion order."""
+        """Return region objects in insertion order.
+        
+        Returns
+        -------
+        tuple of Region
+            Registered regions.
+        """
         return tuple(self._regions.values())
 
     def sorted_by_priority(self) -> tuple[Region, ...]:
-        """
-        Return enabled regions ordered from low to high priority.
-
-        Python's stable sort preserves insertion order among regions having
-        equal priority. Equal-priority overlaps will be checked explicitly by
-        the model builder rather than silently relying on this order.
+        """Return enabled regions ordered from low to high priority.
+        
+        Returns
+        -------
+        tuple of Region
+            Stable priority-sorted sequence.
+        
+        Notes
+        -----
+        Python's stable sort preserves insertion order among equal-priority regions,
+        but the model builder explicitly rejects equal-priority overlaps instead of
+        using that order to resolve them.
         """
         return tuple(
             sorted(
@@ -369,7 +510,12 @@ class RegionRegistry:
         )
 
     def clear(self) -> None:
-        """Remove all regions."""
+        """Remove all registered regions.
+        
+        Returns
+        -------
+        None
+        """
         self._regions.clear()
 
     def __contains__(self, name: str) -> bool:

@@ -1,30 +1,22 @@
-"""
-mesh.py
-=======
+"""Mesh construction utilities for DORT R-Z input preparation.
 
-Mesh utilities for a simple Python API used to prepare DORT R-Z models.
+The module defines one-dimensional mesh axes and combines them into a
+two-dimensional cylindrical R-Z mesh.  It contains no material, region, or
+DORT/FIDO serialization logic.
 
-This module deliberately knows nothing about materials, regions, or DORT input
-syntax. Its only responsibility is to create and validate one-dimensional
-mesh axes and combine them into an R-Z mesh.
+The array convention used by the project is ``(nz, nr)``: axial index first,
+radial index second.
 
-Example
--------
-from mesh import Mesh
-
-mesh = Mesh()
-
-mesh.r.add_segment(0.0, 100.0, step=10.0)
-mesh.r.add_segment(100.0, 140.0, step=5.0)
-mesh.r.add_segment(140.0, 300.0, step=20.0)
-
-mesh.z.add_segment(-100.0, -50.0, step=10.0)
-mesh.z.add_segment(-50.0, 50.0, step=5.0)
-mesh.z.add_segment(50.0, 150.0, step=10.0)
-
-print(mesh)
-print(mesh.r.edges)
-print(mesh.r.centers)
+Examples
+--------
+>>> from mesh import Mesh
+>>> mesh = Mesh()
+>>> mesh.r.add_segment(0.0, 100.0, step=10.0)
+MeshAxis(name='R', n_cells=10, bounds=(0, 100))
+>>> mesh.z.add_segment(-50.0, 50.0, n_cells=20)
+MeshAxis(name='Z', n_cells=20, bounds=(-50, 50))
+>>> mesh.shape
+(20, 10)
 """
 
 from __future__ import annotations
@@ -36,7 +28,24 @@ import numpy as np
 
 
 def _as_1d_float_array(values: Iterable[float]) -> np.ndarray:
-    """Convert values to a finite one-dimensional float array."""
+    """Convert an iterable of mesh coordinates to a validated float array.
+    
+    Parameters
+    ----------
+    values : iterable of float
+        Candidate mesh-edge coordinates.
+    
+    Returns
+    -------
+    numpy.ndarray
+        One-dimensional finite floating-point array.
+    
+    Raises
+    ------
+    ValueError
+        If the result is not one-dimensional, contains fewer than two entries, or
+        contains a non-finite value.
+    """
     array = np.asarray(list(values), dtype=float)
 
     if array.ndim != 1:
@@ -53,19 +62,18 @@ def _as_1d_float_array(values: Iterable[float]) -> np.ndarray:
 
 @dataclass
 class MeshAxis:
-    """
-    One-dimensional mesh axis.
-
+    """Represent one one-dimensional mesh axis.
+    
     Parameters
     ----------
-    name
-        Human-readable name such as ``"R"`` or ``"Z"``.
-
+    name : str
+        Human-readable axis name, normally ``"R"`` or ``"Z"``.
+    
     Notes
     -----
-    Segments are appended sequentially. Once an axis contains mesh edges,
-    the start of the next segment must coincide with the current last edge.
-    This prevents accidental gaps or overlaps in the mesh definition.
+    Segments are appended sequentially.  Once the axis contains edges, the first
+    coordinate of every new segment must coincide with the current last edge. This
+    prevents accidental gaps and overlaps between adjacent mesh segments.
     """
 
     name: str
@@ -81,12 +89,25 @@ class MeshAxis:
 
     @property
     def edges(self) -> np.ndarray:
-        """Return a copy of the mesh-edge coordinates."""
+        """Return the mesh-edge coordinates.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Copy of the edge-coordinate array.
+        """
         return self._edges.copy()
 
     @property
     def centers(self) -> np.ndarray:
-        """Return mesh-cell centre coordinates."""
+        """Return mesh-cell centre coordinates.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Cell-centre coordinates. An empty array is returned when the axis has
+            fewer than two edges.
+        """
         if self._edges.size < 2:
             return np.array([], dtype=float)
 
@@ -94,7 +115,13 @@ class MeshAxis:
 
     @property
     def widths(self) -> np.ndarray:
-        """Return mesh-cell widths."""
+        """Return mesh-cell widths.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Differences between consecutive mesh edges.
+        """
         if self._edges.size < 2:
             return np.array([], dtype=float)
 
@@ -102,12 +129,24 @@ class MeshAxis:
 
     @property
     def n_cells(self) -> int:
-        """Number of mesh cells."""
+        """Return the number of mesh intervals.
+        
+        Returns
+        -------
+        int
+            Number of cells on the axis.
+        """
         return max(self._edges.size - 1, 0)
 
     @property
     def bounds(self) -> tuple[float, float] | None:
-        """Return ``(minimum, maximum)`` axis bounds, or ``None`` if empty."""
+        """Return the minimum and maximum coordinate.
+        
+        Returns
+        -------
+        tuple of float or None
+            ``(minimum, maximum)`` when the axis is defined; otherwise ``None``.
+        """
         if self._edges.size == 0:
             return None
 
@@ -115,11 +154,22 @@ class MeshAxis:
 
     @property
     def is_defined(self) -> bool:
-        """Whether this axis contains at least one mesh cell."""
+        """Return whether the axis contains at least one mesh cell.
+        
+        Returns
+        -------
+        bool
+            ``True`` when at least two mesh edges have been defined.
+        """
         return self.n_cells > 0
 
     def clear(self) -> None:
-        """Remove all mesh edges from the axis."""
+        """Remove all mesh edges from the axis.
+        
+        Returns
+        -------
+        None
+        """
         self._edges = np.array([], dtype=float)
 
     def add_segment(
@@ -130,20 +180,49 @@ class MeshAxis:
         step: float | None = None,
         n_cells: int | None = None,
     ) -> "MeshAxis":
-        """
-        Append a uniformly spaced mesh segment.
-
-        Specify exactly one of ``step`` or ``n_cells``.
-
+        """Append a uniformly spaced mesh segment.
+        
+        Exactly one of ``step`` or ``n_cells`` must be supplied.
+        
+        Parameters
+        ----------
+        start : float
+            Coordinate of the first edge of the segment.
+        end : float
+            Coordinate of the final edge of the segment. Must be greater than
+            ``start``.
+        step : float, optional
+            Requested uniform cell width. The interval must be divisible by this
+            value within the mesh floating-point tolerance.
+        n_cells : int, optional
+            Number of equal-width cells in the segment.
+        
+        Returns
+        -------
+        MeshAxis
+            The modified axis, allowing chained calls.
+        
+        Raises
+        ------
+        ValueError
+            If the bounds are invalid, the new segment is not contiguous with the
+            existing axis, neither/both spacing options are supplied, ``step`` is not
+            positive, ``step`` does not divide the interval, or ``n_cells`` is invalid.
+        
         Examples
         --------
-        ``axis.add_segment(0, 100, step=5)``
-
-        ``axis.add_segment(100, 150, n_cells=20)``
-
-        The requested ``step`` must divide the interval within numerical
-        tolerance. This avoids silently creating an unexpected short final
-        cell.
+        >>> from mesh import MeshAxis
+        >>> r = MeshAxis("R")
+        >>> r.add_segment(0.0, 100.0, step=5.0)
+        MeshAxis(name='R', n_cells=20, bounds=(0, 100))
+        >>> r.add_segment(100.0, 150.0, n_cells=10)
+        MeshAxis(name='R', n_cells=30, bounds=(0, 150))
+        
+        Notes
+        -----
+        Requiring exact subdivision avoids silently creating a shortened final cell.
+        Use :meth:`add_edges` when an intentionally irregular final interval is
+        required.
         """
         start = float(start)
         end = float(end)
@@ -222,11 +301,24 @@ class MeshAxis:
         return self
 
     def add_edges(self, values: Iterable[float]) -> "MeshAxis":
-        """
-        Append explicitly supplied mesh edges.
-
-        If the axis already exists, the first supplied edge must equal the
-        current final edge. The common edge is not duplicated.
+        """Append explicitly supplied mesh edges.
+        
+        Parameters
+        ----------
+        values : iterable of float
+            Strictly increasing edge coordinates. If the axis is already defined, the
+            first supplied value must equal the current final edge within tolerance.
+        
+        Returns
+        -------
+        MeshAxis
+            The modified axis.
+        
+        Raises
+        ------
+        ValueError
+            If the supplied coordinates are invalid, not strictly increasing, or not
+            contiguous with the existing axis.
         """
         new_edges = _as_1d_float_array(values)
 
@@ -255,7 +347,19 @@ class MeshAxis:
         return self
 
     def validate(self) -> None:
-        """Raise ``ValueError`` if the axis definition is invalid."""
+        """Validate the current axis definition.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If the edge array is not one-dimensional, contains non-finite values,
+            contains fewer than two coordinates after definition, or is not strictly
+            increasing.
+        """
         if self._edges.size == 0:
             return
 
@@ -291,29 +395,58 @@ class MeshAxis:
 
 @dataclass
 class Mesh:
-    """Two-dimensional cylindrical R-Z mesh."""
+    """Represent a two-dimensional cylindrical R-Z mesh.
+    
+    Attributes
+    ----------
+    r : MeshAxis
+        Radial mesh axis.
+    z : MeshAxis
+        Axial mesh axis.
+    
+    Notes
+    -----
+    All project maps use shape ``(nz, nr)`` so that the first array index is the
+    Z index and the second is the R index.
+    """
 
     r: MeshAxis = field(default_factory=lambda: MeshAxis("R"))
     z: MeshAxis = field(default_factory=lambda: MeshAxis("Z"))
 
     @property
     def shape(self) -> tuple[int, int]:
-        """
-        Return the material-map shape ``(nz, nr)``.
-
-        This convention is used throughout the planned API:
-        axis 0 -> Z
-        axis 1 -> R
+        """Return the project-standard two-dimensional map shape.
+        
+        Returns
+        -------
+        tuple of int
+            ``(nz, nr)``.
         """
         return self.z.n_cells, self.r.n_cells
 
     @property
     def n_cells(self) -> int:
-        """Total number of R-Z mesh cells."""
+        """Return the total number of R-Z fine-mesh cells.
+        
+        Returns
+        -------
+        int
+            Product of the radial and axial cell counts.
+        """
         return self.r.n_cells * self.z.n_cells
 
     def validate(self) -> None:
-        """Validate both R and Z axes."""
+        """Validate both mesh axes and require both to be defined.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If either axis definition is invalid or if R or Z has not been defined.
+        """
         self.r.validate()
         self.z.validate()
 

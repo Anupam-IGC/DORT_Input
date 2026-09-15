@@ -1,68 +1,10 @@
-"""
-model.py
-========
+"""High-level R-Z model assembly for DORT input preparation.
 
-Central model object for the DORT preparation API.
+The module combines mesh, material, and region definitions into validated
+final material/region maps. DORT/FIDO serialization is handled separately by
+``writer.py``.
 
-This module combines:
-
-    mesh.py       -> Mesh / MeshAxis
-    materials.py  -> Material / MaterialRegistry
-    regions.py    -> Region / RegionRegistry
-
-Its main responsibility is to build the final R-Z material filling map.
-
-The array convention used throughout is:
-
-    shape = (nz, nr)
-
-so axis 0 is Z and axis 1 is R.
-
-Example
--------
-from model import DORTModel
-
-model = DORTModel("example")
-
-model.add_material("Sodium")
-model.add_material("Core")
-model.add_material("SS316")
-model.add_material("Air")
-
-model.mesh.r.add_segment(0.0, 200.0, step=10.0)
-model.mesh.z.add_segment(-100.0, 100.0, step=10.0)
-
-model.set_background("Sodium")
-
-model.add_region(
-    "core",
-    material="Core",
-    r=(0.0, 100.0),
-    z=(-50.0, 50.0),
-    priority=20,
-)
-
-model.add_region(
-    "radial_shield",
-    material="SS316",
-    r=(100.0, 140.0),
-    z=(-50.0, 50.0),
-    priority=30,
-)
-
-model.add_region(
-    "penetration",
-    material="Air",
-    r=(80.0, 120.0),
-    z=(-10.0, 10.0),
-    priority=50,
-)
-
-model.build()
-
-print(model.material_id_map)
-print(model.material_name_map)
-print(model.region_map)
+The project array convention is ``(nz, nr)``.
 """
 
 from __future__ import annotations
@@ -79,8 +21,24 @@ from regions import Region, RegionRegistry
 
 @dataclass(frozen=True)
 class BuildSummary:
-    """
-    Small immutable summary returned after a successful build.
+    """Summarize a successful :meth:`DORTModel.build` operation.
+    
+    Parameters
+    ----------
+    model_name : str
+        Model name.
+    shape : tuple of int
+        Final map shape ``(nz, nr)``.
+    n_cells : int
+        Total number of fine-mesh cells.
+    n_materials : int
+        Number of registered materials.
+    n_regions : int
+        Number of enabled regions.
+    background_material : str or None
+        Name of the background material, if defined.
+    warnings : tuple of str, optional
+        Non-fatal validation warnings.
     """
 
     model_name: str
@@ -104,19 +62,26 @@ class BuildSummary:
 
 
 class DORTModel:
-    """
-    Central user-facing model object.
-
+    """Central user-facing R-Z model object.
+    
     Parameters
     ----------
-    name
+    name : str, optional
         Human-readable model name.
-
+    
+    Attributes
+    ----------
+    mesh : Mesh
+        R-Z fine mesh.
+    materials : MaterialRegistry
+        Registered materials.
+    regions : RegionRegistry
+        Registered physical regions.
+    
     Notes
     -----
-    ``DORTModel`` deliberately does not yet know how to write DORT input
-    syntax. It only constructs and validates a material-filled R-Z mesh.
-    A separate writer module will later translate these maps to DORT format.
+    A model must be successfully built before result maps can be inspected or a
+    ``DORTWriter`` can be constructed.
     """
 
     def __init__(self, name: str = "DORT_model") -> None:
@@ -151,8 +116,28 @@ class DORTModel:
         dort_id: int | None = None,
         description: str = "",
     ) -> Material:
-        """
-        Add a material to the model and return it.
+        """Register a material through the model convenience API.
+        
+        Parameters
+        ----------
+        name : str
+            Unique material name.
+        dort_id : int, optional
+            Positive internal ID. If omitted, the registry assigns one.
+        description : str, optional
+            Free-text material description.
+        
+        Returns
+        -------
+        Material
+            Registered material.
+        
+        Raises
+        ------
+        TypeError
+            If an explicitly supplied ID is not an integer.
+        ValueError
+            If the material definition conflicts with the registry.
         """
         return self.materials.add(
             name,
@@ -175,8 +160,29 @@ class DORTModel:
         enabled: bool = True,
         description: str = "",
     ) -> Region:
-        """
-        Add a rectangular R-Z region and return it.
+        """Register a rectangular R-Z region through the model convenience API.
+        
+        Parameters
+        ----------
+        name : str
+            Unique region name.
+        material : str
+            Name of the material assigned to the region.
+        r : tuple of float
+            Radial bounds.
+        z : tuple of float
+            Axial bounds.
+        priority : int, optional
+            Overwrite priority.
+        enabled : bool, optional
+            Whether the region participates in building.
+        description : str, optional
+            Free-text description.
+        
+        Returns
+        -------
+        Region
+            Registered region.
         """
         return self.regions.add(
             name,
@@ -194,14 +200,31 @@ class DORTModel:
 
     @property
     def background_material(self) -> str | None:
-        """Name of the current background material."""
+        """Return the current background material name.
+        
+        Returns
+        -------
+        str or None
+            Registered material name, or ``None`` when no background is defined.
+        """
         return self._background_material
 
     def set_background(self, material: str) -> None:
-        """
-        Set the material used to initially fill the entire mesh.
-
-        The material must already be registered.
+        """Set the material used to initialize every mesh cell.
+        
+        Parameters
+        ----------
+        material : str
+            Name of an already registered material.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        KeyError
+            If the requested material is not registered.
         """
         material = str(material).strip()
 
@@ -214,11 +237,16 @@ class DORTModel:
         self._background_material = material
 
     def clear_background(self) -> None:
-        """
-        Remove the background material.
-
-        With no background, every cell must later be filled by an explicit
-        region or ``build()`` will fail unless ``allow_unfilled=True``.
+        """Remove the background material.
+        
+        Returns
+        -------
+        None
+        
+        Notes
+        -----
+        With no background, every fine-mesh cell must eventually be covered by an
+        explicit region unless ``build(allow_unfilled=True)`` is used for debugging.
         """
         self._background_material = None
 
@@ -228,7 +256,13 @@ class DORTModel:
 
     @property
     def is_built(self) -> bool:
-        """Whether build() has produced current result arrays."""
+        """Return whether current result arrays exist.
+        
+        Returns
+        -------
+        bool
+            ``True`` after a successful build.
+        """
         return self._material_id_map is not None
 
     def _require_built(self) -> None:
@@ -239,45 +273,86 @@ class DORTModel:
 
     @property
     def material_id_map(self) -> np.ndarray:
-        """
-        Final DORT material-ID array of shape ``(nz, nr)``.
+        """Return the final internal material-ID map.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Integer array with shape ``(nz, nr)``.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
         """
         self._require_built()
         return self._material_id_map.copy()
 
     @property
     def material_name_map(self) -> np.ndarray:
-        """
-        Final material-name array of shape ``(nz, nr)``.
+        """Return the final material-name map.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Object/string array with shape ``(nz, nr)``.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
         """
         self._require_built()
         return self._material_name_map.copy()
 
     @property
     def region_map(self) -> np.ndarray:
-        """
-        Name of the region that last assigned each cell.
-
-        Background-filled cells contain ``"background"``.
-        Unfilled cells contain an empty string.
+        """Return the final owning-region map.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Object/string array with shape ``(nz, nr)``. Background cells contain
+            ``"background"`` and unfilled cells contain ``""``.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
         """
         self._require_built()
         return self._region_map.copy()
 
     @property
     def priority_map(self) -> np.ndarray:
-        """
-        Priority responsible for the final assignment of each cell.
-
-        Background cells contain a very small sentinel integer.
-        Unfilled cells also retain that sentinel.
+        """Return the priority responsible for each final cell assignment.
+        
+        Returns
+        -------
+        numpy.ndarray
+            Integer array with shape ``(nz, nr)``.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
+        
+        Notes
+        -----
+        Background and unfilled cells retain a very small sentinel integer.
         """
         self._require_built()
         return self._priority_map.copy()
 
     @property
     def warnings(self) -> tuple[str, ...]:
-        """Warnings generated by the most recent validation/build."""
+        """Return warnings from the most recent validation/build.
+        
+        Returns
+        -------
+        tuple of str
+            Warning messages.
+        """
         return tuple(self._warnings)
 
     # ------------------------------------------------------------------
@@ -289,24 +364,26 @@ class DORTModel:
         *,
         strict_region_bounds: bool = False,
     ) -> tuple[str, ...]:
-        """
-        Validate model consistency.
-
+        """Validate model consistency before building.
+        
         Parameters
         ----------
-        strict_region_bounds
-            If False, a region extending partly outside the mesh produces a
-            warning. If True, it raises ValueError.
-
+        strict_region_bounds : bool, optional
+            If ``False``, a region extending partially outside the mesh produces a
+            warning. If ``True``, the same condition raises ``ValueError``.
+        
         Returns
         -------
-        tuple[str, ...]
-            Warning messages.
-
+        tuple of str
+            Non-fatal warning messages.
+        
         Raises
         ------
-        ValueError / KeyError
-            For invalid mesh, undefined materials, or invalid region use.
+        KeyError
+            If the background or an enabled region refers to an undefined material.
+        ValueError
+            If the mesh/material registry is invalid, a region does not intersect the
+            mesh, or strict region-bound checking fails.
         """
         self._warnings = []
 
@@ -360,11 +437,22 @@ class DORTModel:
     # ------------------------------------------------------------------
 
     def _check_equal_priority_overlaps(self) -> None:
-        """
-        Reject cell overlaps between enabled regions of equal priority.
-
-        Different-priority overlaps are intentional and are resolved by the
-        normal low-to-high priority painting process.
+        """Reject cell overlaps between enabled regions of equal priority.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If two enabled equal-priority regions select one or more common mesh
+            cells.
+        
+        Notes
+        -----
+        Different-priority overlaps are intentional and are resolved by low-to-high
+        priority painting.
         """
         enabled_regions = [
             region for region in self.regions if region.enabled
@@ -410,30 +498,34 @@ class DORTModel:
         allow_unfilled: bool = False,
         strict_region_bounds: bool = False,
     ) -> BuildSummary:
-        """
-        Build the final material and region maps.
-
-        Algorithm
-        ---------
-        1. Validate mesh/material/region consistency.
-        2. Fill the complete mesh with the background material, if defined.
-        3. Sort enabled regions from low to high priority.
-        4. Paint each region over the existing map.
-        5. Reject equal-priority overlaps.
-        6. Check for remaining unfilled cells.
-
+        """Build and validate the final material and region maps.
+        
         Parameters
         ----------
-        allow_unfilled
-            If False, any remaining cell without a material causes an error.
-            If True, unfilled cells retain material ID 0 and empty names.
-        strict_region_bounds
-            Passed to ``validate()``.
-
+        allow_unfilled : bool, optional
+            If ``False``, any cell left without material assignment raises an error.
+            If ``True``, such cells retain material ID ``0`` and empty names.
+        strict_region_bounds : bool, optional
+            Passed to :meth:`validate`.
+        
         Returns
         -------
         BuildSummary
-            Summary of the successful build.
+            Immutable summary of the completed build.
+        
+        Raises
+        ------
+        KeyError
+            If material references are invalid.
+        ValueError
+            If model validation fails, equal-priority regions overlap, or unfilled
+            cells remain when ``allow_unfilled`` is ``False``.
+        
+        Notes
+        -----
+        The algorithm first applies the optional background, then paints enabled
+        regions from low to high priority. Higher-priority regions therefore overwrite
+        lower-priority assignments.
         """
         self.validate(
             strict_region_bounds=strict_region_bounds
@@ -521,11 +613,27 @@ class DORTModel:
         z_index: int,
         r_index: int,
     ) -> dict[str, object]:
-        """
-        Return the final assignment of one mesh cell.
-
-        This is a debugging helper and will be useful when inspecting a
-        suspicious point in the material map.
+        """Return the final assignment and coordinates of one mesh cell.
+        
+        Parameters
+        ----------
+        z_index : int
+            Zero-based axial cell index.
+        r_index : int
+            Zero-based radial cell index.
+        
+        Returns
+        -------
+        dict
+            Dictionary containing indices, cell-centre coordinates, material ID/name,
+            owning region, and final priority.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
+        IndexError
+            If either index lies outside the mesh.
         """
         self._require_built()
 
@@ -559,8 +667,18 @@ class DORTModel:
         }
 
     def material_cell_counts(self) -> dict[str, int]:
-        """
-        Return number of cells assigned to each material.
+        """Count final cells assigned to each material.
+        
+        Returns
+        -------
+        dict of str to int
+            Cell counts keyed by material name. ``"<unfilled>"`` is included when
+            applicable.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
         """
         self._require_built()
 
@@ -581,12 +699,22 @@ class DORTModel:
         return result
 
     def region_cell_counts(self) -> dict[str, int]:
-        """
-        Return number of final cells owned by each region/background.
-
-        Note that a lower-priority region may originally cover more cells than
-        it owns in the final map because higher-priority regions can overwrite
-        parts of it.
+        """Count final cells owned by each region/background.
+        
+        Returns
+        -------
+        dict of str to int
+            Cell counts keyed by final owner name.
+        
+        Raises
+        ------
+        RuntimeError
+            If the model has not been built.
+        
+        Notes
+        -----
+        A low-priority region may own fewer final cells than its original geometric
+        mask because higher-priority regions can overwrite it.
         """
         self._require_built()
 
