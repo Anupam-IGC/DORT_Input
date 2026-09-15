@@ -1,0 +1,33 @@
+DORT writer summary for: writer_demo
+
+Required/consistent 62$ values:
+  IZM = 4
+  IM  = 20
+  JM  = 20
+  INGEOM = 1  (R-Z)
+
+2* entries = 21
+4* entries = 21
+8$ entries = 400
+9$ entries = 4
+
+Zone  Owner                     Material                  Mat.No.    Cells
+--------------------------------------------------------------------------
+   1  background                Sodium                         1      260
+   2  core                      Core                           2       96
+   3  radial_shield             SS316                          3       36
+   4  penetration               Air                            4        8
+
+2** -100 -90 -80 -70 -60 -50 -40 -30 -20 -10 0.0 10 20 30 40 50 60 70 80
+    90 100
+
+4** 0.0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180
+    190 200
+
+8$$ 20R 1 4Q 20
+10R 2 4R 3 6R 1 3Q 20
+8R 2 4R 4 2R 3 6R 1 1Q 20
+10R 2 4R 3 6R 1 3Q 20
+20R 1 4Q 20
+
+9$$ 1 2 3 4
