@@ -1,46 +1,25 @@
 """High-level R-Z model assembly for DORT input preparation.
 
-The module combines mesh, material, and region definitions into validated
-final material/region maps. DORT/FIDO serialization is handled separately by
-``writer.py``.
-
-The project array convention is ``(nz, nr)``.
+The model combines mesh, material, and region definitions into validated
+material/region maps.  DORT/FIDO serialization is handled by ``writer.py``.
+The array convention is ``(nz, nr)``.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator
+from pathlib import Path
 
 import numpy as np
 
 from mesh import Mesh
 from materials import Material, MaterialRegistry
+from mixtures import Mixture, MixtureFileValidation, MixtureRegistry
 from regions import Region, RegionRegistry
 
 
 @dataclass(frozen=True)
 class BuildSummary:
-    """Summarize a successful :meth:`DORTModel.build` operation.
-    
-    Parameters
-    ----------
-    model_name : str
-        Model name.
-    shape : tuple of int
-        Final map shape ``(nz, nr)``.
-    n_cells : int
-        Total number of fine-mesh cells.
-    n_materials : int
-        Number of registered materials.
-    n_regions : int
-        Number of enabled regions.
-    background_material : str or None
-        Name of the background material, if defined.
-    warnings : tuple of str, optional
-        Non-fatal validation warnings.
-    """
-
     model_name: str
     shape: tuple[int, int]
     n_cells: int
@@ -51,58 +30,32 @@ class BuildSummary:
 
     def __repr__(self) -> str:
         return (
-            f"BuildSummary(model={self.model_name!r}, "
-            f"shape={self.shape}, "
-            f"cells={self.n_cells}, "
-            f"materials={self.n_materials}, "
-            f"regions={self.n_regions}, "
-            f"background={self.background_material!r}, "
+            f"BuildSummary(model={self.model_name!r}, shape={self.shape}, "
+            f"cells={self.n_cells}, materials={self.n_materials}, "
+            f"regions={self.n_regions}, background={self.background_material!r}, "
             f"warnings={len(self.warnings)})"
         )
 
 
 class DORTModel:
-    """Central user-facing R-Z model object.
-    
-    Parameters
-    ----------
-    name : str, optional
-        Human-readable model name.
-    
-    Attributes
-    ----------
-    mesh : Mesh
-        R-Z fine mesh.
-    materials : MaterialRegistry
-        Registered materials.
-    regions : RegionRegistry
-        Registered physical regions.
-    
-    Notes
-    -----
-    A model must be successfully built before result maps can be inspected or a
-    ``DORTWriter`` can be constructed.
-    """
+    """Central user-facing R-Z model object."""
 
     def __init__(self, name: str = "DORT_model") -> None:
         clean_name = str(name).strip()
-
         if not clean_name:
             raise ValueError("Model name cannot be empty.")
 
         self.name = clean_name
-
         self.mesh = Mesh()
         self.materials = MaterialRegistry()
+        self.mixtures = MixtureRegistry()
         self.regions = RegionRegistry()
 
         self._background_material: str | None = None
-
         self._material_id_map: np.ndarray | None = None
         self._material_name_map: np.ndarray | None = None
         self._region_map: np.ndarray | None = None
         self._priority_map: np.ndarray | None = None
-
         self._warnings: list[str] = []
 
     # ------------------------------------------------------------------
@@ -113,37 +66,209 @@ class DORTModel:
         self,
         name: str,
         *,
+        material_id: int | None = None,
         dort_id: int | None = None,
+        legendre_order: int = 0,
         description: str = "",
     ) -> Material:
-        """Register a material through the model convenience API.
-        
+        """Register a material.
+
         Parameters
         ----------
-        name : str
-            Unique material name.
-        dort_id : int, optional
-            Positive internal ID. If omitted, the registry assigns one.
-        description : str, optional
-            Free-text material description.
-        
-        Returns
-        -------
-        Material
-            Registered material.
-        
-        Raises
-        ------
-        TypeError
-            If an explicitly supplied ID is not an integer.
-        ValueError
-            If the material definition conflicts with the registry.
+        name
+            Unique readable material name.
+        material_id
+            Optional natural-number ID. Normally omit this; IDs are assigned as
+            1, 2, 3, ... in registration order.
+        dort_id
+            Legacy alias for ``material_id``.
+        legendre_order
+            Scattering expansion order L for P_L. DORT uses one global ISCTM,
+            so every material in a valid model must use the same value.
+        description
+            Optional explanatory text.
         """
         return self.materials.add(
             name,
+            material_id=material_id,
             dort_id=dort_id,
+            legendre_order=legendre_order,
             description=description,
         )
+
+    # ------------------------------------------------------------------
+    # External mixture-preparation convenience API
+    # ------------------------------------------------------------------
+
+    def add_mixture(
+        self,
+        name: str,
+        components,
+        *,
+        legendre_order: int | None = None,
+        description: str = "",
+    ) -> Mixture:
+        """Register a physical material and its external mixing recipe.
+
+        Parameters
+        ----------
+        name
+            Final material name used by geometry regions.
+        components
+            Mapping ``{microscopic_MAT_number: atom_density}`` or an iterable
+            of ``(MAT_number, atom_density)`` pairs. These are the identifiers
+            used by the microscopic ``igc-s3`` library read by ``m_ia_oa.for``.
+        legendre_order
+            Common order L for P_L. The supplied external mixer supports
+            L = 0..6. For later mixtures this may be omitted and the established
+            common material order is inherited.
+        description
+            Optional explanatory text.
+
+        Notes
+        -----
+        Mixtures and materials share the natural sequence 1, 2, 3, ... .
+        For order L, mixture m occupies ``L+1`` records in ``mixf.cr`` beginning
+        at ``1 + (m-1)*(L+1)``. The locally modified DORT input therefore uses
+        the negative of this first record number in array 9$.
+        """
+        clean_name = str(name).strip()
+        expected_mixture_id = len(self.mixtures) + 1
+
+        if clean_name in self.materials:
+            material = self.materials[clean_name]
+            if material.material_id != expected_mixture_id:
+                raise ValueError(
+                    "Mixtures must be defined in the same natural-number order as "
+                    "model materials. "
+                    f"Next mixture ID is {expected_mixture_id}, but material "
+                    f"{clean_name!r} has ID {material.material_id}."
+                )
+            if legendre_order is not None and material.legendre_order != legendre_order:
+                raise ValueError(
+                    f"Material {clean_name!r} already uses P{material.legendre_order}; "
+                    f"cannot define its mixture as P{legendre_order}."
+                )
+        else:
+            if legendre_order is None:
+                legendre_order = self.materials.legendre_order if len(self.materials) else 0
+            material = self.add_material(
+                clean_name,
+                legendre_order=legendre_order,
+                description=description,
+            )
+
+        # The external mixer has a hard-coded maximum order of six.
+        self.mixtures._validate_legendre_order(material.legendre_order)
+
+        return self.mixtures.add(
+            clean_name,
+            components,
+            mixture_id=material.material_id,
+            description=description,
+        )
+
+    def define_mixture(
+        self,
+        material: str,
+        components,
+        *,
+        description: str = "",
+    ) -> Mixture:
+        """Define an external mixture for an already registered material."""
+        if material not in self.materials:
+            raise KeyError(
+                f"Cannot define mixture for {material!r}: material is not registered."
+            )
+        return self.add_mixture(
+            material,
+            components,
+            legendre_order=self.materials[material].legendre_order,
+            description=description,
+        )
+
+    def load_mixtures_from_excel(
+        self,
+        filename: str | Path,
+        *,
+        sheet_name: str = "Read",
+        legendre_order: int = 5,
+        clear_existing: bool = False,
+    ) -> tuple[Mixture, ...]:
+        """Load external mixture recipes from the standard workbook layout.
+
+        The recommended workbook format follows the supplied ``mixture.py``:
+        ``Nuclide`` in column A, ``MAT No.`` in column B, and one final mixture
+        per subsequent column.  Nonblank mixture cells are atom densities.
+
+        Mixture/material IDs follow the workbook column order exactly.
+        """
+        imported = MixtureRegistry.from_excel(filename, sheet_name=sheet_name)
+        self.mixtures._validate_legendre_order(legendre_order)
+
+        if len(self.materials) or len(self.mixtures):
+            if not clear_existing:
+                raise ValueError(
+                    "The model already contains materials or mixtures. Load the "
+                    "spreadsheet into a fresh model, or pass clear_existing=True "
+                    "before defining geometry."
+                )
+            if len(self.regions) or self.background_material is not None:
+                raise ValueError(
+                    "Cannot clear materials after regions/background have been defined. "
+                    "Load the mixture workbook before defining geometry."
+                )
+            self.materials.clear()
+            self.mixtures.clear()
+
+        for mixture in imported:
+            self.add_mixture(
+                mixture.name,
+                mixture.components,
+                legendre_order=legendre_order,
+                description=f"Loaded from {Path(filename).name}:{sheet_name}",
+            )
+        return self.mixtures.mixtures
+
+    def prepare_mixtures_from_excel(
+        self,
+        filename: str | Path,
+        *,
+        output_dir: str | Path = ".",
+        sheet_name: str = "Read",
+        legendre_order: int = 5,
+        clear_existing: bool = False,
+    ) -> dict[str, Path]:
+        """Load a mixture workbook and write ``mix.inp`` plus mapping files."""
+        self.load_mixtures_from_excel(
+            filename,
+            sheet_name=sheet_name,
+            legendre_order=legendre_order,
+            clear_existing=clear_existing,
+        )
+        return self.write_mixture_preparation_files(output_dir)
+
+    def write_mixture_preparation_files(
+        self,
+        output_dir: str | Path,
+    ) -> dict[str, Path]:
+        """Write ``mix.inp``, ``Mixture_Names.txt`` and ``dort_mix_cards.txt``."""
+        return self.mixtures.write_preparation_files(
+            output_dir,
+            self.materials.legendre_order,
+        )
+
+    def render_mixture_input(self) -> str:
+        """Return the complete ``mix.inp`` text for ``m_ia_oa.for``."""
+        return self.mixtures.render_mix_input(self.materials.legendre_order)
+
+    def write_mixture_input(self, filename: str | Path) -> Path:
+        """Write ``mix.inp`` for the external microscopic-to-macroscopic mixer."""
+        return self.mixtures.write_mix_input(filename, self.materials.legendre_order)
+
+    def validate_mixture_file(self, filename: str | Path) -> MixtureFileValidation:
+        """Validate a generated ``mixf.cr`` against the registered mixtures."""
+        return self.mixtures.validate_mix_file(filename, self.materials.legendre_order)
 
     # ------------------------------------------------------------------
     # Region convenience API
@@ -160,30 +285,6 @@ class DORTModel:
         enabled: bool = True,
         description: str = "",
     ) -> Region:
-        """Register a rectangular R-Z region through the model convenience API.
-        
-        Parameters
-        ----------
-        name : str
-            Unique region name.
-        material : str
-            Name of the material assigned to the region.
-        r : tuple of float
-            Radial bounds.
-        z : tuple of float
-            Axial bounds.
-        priority : int, optional
-            Overwrite priority.
-        enabled : bool, optional
-            Whether the region participates in building.
-        description : str, optional
-            Free-text description.
-        
-        Returns
-        -------
-        Region
-            Registered region.
-        """
         return self.regions.add(
             name,
             material=material,
@@ -200,54 +301,17 @@ class DORTModel:
 
     @property
     def background_material(self) -> str | None:
-        """Return the current background material name.
-        
-        Returns
-        -------
-        str or None
-            Registered material name, or ``None`` when no background is defined.
-        """
         return self._background_material
 
     def set_background(self, material: str) -> None:
-        """Set the material used to initialize every mesh cell.
-        
-        Parameters
-        ----------
-        material : str
-            Name of an already registered material.
-        
-        Returns
-        -------
-        None
-        
-        Raises
-        ------
-        KeyError
-            If the requested material is not registered.
-        """
         material = str(material).strip()
-
         if material not in self.materials:
             raise KeyError(
-                f"Cannot set background material to {material!r}: "
-                "it is not registered."
+                f"Cannot set background material to {material!r}: it is not registered."
             )
-
         self._background_material = material
 
     def clear_background(self) -> None:
-        """Remove the background material.
-        
-        Returns
-        -------
-        None
-        
-        Notes
-        -----
-        With no background, every fine-mesh cell must eventually be covered by an
-        explicit region unless ``build(allow_unfilled=True)`` is used for debugging.
-        """
         self._background_material = None
 
     # ------------------------------------------------------------------
@@ -256,146 +320,51 @@ class DORTModel:
 
     @property
     def is_built(self) -> bool:
-        """Return whether current result arrays exist.
-        
-        Returns
-        -------
-        bool
-            ``True`` after a successful build.
-        """
         return self._material_id_map is not None
 
     def _require_built(self) -> None:
         if not self.is_built:
-            raise RuntimeError(
-                "The model has not been built yet. Call model.build() first."
-            )
+            raise RuntimeError("The model has not been built yet. Call model.build() first.")
 
     @property
     def material_id_map(self) -> np.ndarray:
-        """Return the final internal material-ID map.
-        
-        Returns
-        -------
-        numpy.ndarray
-            Integer array with shape ``(nz, nr)``.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        """
         self._require_built()
         return self._material_id_map.copy()
 
     @property
     def material_name_map(self) -> np.ndarray:
-        """Return the final material-name map.
-        
-        Returns
-        -------
-        numpy.ndarray
-            Object/string array with shape ``(nz, nr)``.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        """
         self._require_built()
         return self._material_name_map.copy()
 
     @property
     def region_map(self) -> np.ndarray:
-        """Return the final owning-region map.
-        
-        Returns
-        -------
-        numpy.ndarray
-            Object/string array with shape ``(nz, nr)``. Background cells contain
-            ``"background"`` and unfilled cells contain ``""``.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        """
         self._require_built()
         return self._region_map.copy()
 
     @property
     def priority_map(self) -> np.ndarray:
-        """Return the priority responsible for each final cell assignment.
-        
-        Returns
-        -------
-        numpy.ndarray
-            Integer array with shape ``(nz, nr)``.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        
-        Notes
-        -----
-        Background and unfilled cells retain a very small sentinel integer.
-        """
         self._require_built()
         return self._priority_map.copy()
 
     @property
     def warnings(self) -> tuple[str, ...]:
-        """Return warnings from the most recent validation/build.
-        
-        Returns
-        -------
-        tuple of str
-            Warning messages.
-        """
         return tuple(self._warnings)
 
     # ------------------------------------------------------------------
     # Validation
     # ------------------------------------------------------------------
 
-    def validate(
-        self,
-        *,
-        strict_region_bounds: bool = False,
-    ) -> tuple[str, ...]:
-        """Validate model consistency before building.
-        
-        Parameters
-        ----------
-        strict_region_bounds : bool, optional
-            If ``False``, a region extending partially outside the mesh produces a
-            warning. If ``True``, the same condition raises ``ValueError``.
-        
-        Returns
-        -------
-        tuple of str
-            Non-fatal warning messages.
-        
-        Raises
-        ------
-        KeyError
-            If the background or an enabled region refers to an undefined material.
-        ValueError
-            If the mesh/material registry is invalid, a region does not intersect the
-            mesh, or strict region-bound checking fails.
-        """
+    def validate(self, *, strict_region_bounds: bool = False) -> tuple[str, ...]:
         self._warnings = []
 
         self.mesh.validate()
         self.materials.validate()
+        self.mixtures.validate(material_names=self.materials.names)
 
-        if self._background_material is not None:
-            if self._background_material not in self.materials:
-                raise KeyError(
-                    f"Background material {self._background_material!r} "
-                    "is not registered."
-                )
+        if self._background_material is not None and self._background_material not in self.materials:
+            raise KeyError(
+                f"Background material {self._background_material!r} is not registered."
+            )
 
         for region in self.regions:
             if not region.enabled:
@@ -403,25 +372,19 @@ class DORTModel:
 
             if region.material not in self.materials:
                 raise KeyError(
-                    f"Region {region.name!r} refers to undefined material "
-                    f"{region.material!r}."
+                    f"Region {region.name!r} refers to undefined material {region.material!r}."
                 )
 
             if not region.intersects_mesh(self.mesh):
-                raise ValueError(
-                    f"Region {region.name!r} does not intersect the mesh."
-                )
+                raise ValueError(f"Region {region.name!r} does not intersect the mesh.")
 
             if not region.is_within_mesh(self.mesh):
                 message = (
                     f"Region {region.name!r} extends outside the mesh domain. "
-                    "Only cells whose centres fall inside the region and mesh "
-                    "can be assigned."
+                    "Only cells whose centres fall inside both the region and mesh are assigned."
                 )
-
                 if strict_region_bounds:
                     raise ValueError(message)
-
                 self._warnings.append(message)
 
             if region.n_cells(self.mesh) == 0:
@@ -432,32 +395,8 @@ class DORTModel:
 
         return tuple(self._warnings)
 
-    # ------------------------------------------------------------------
-    # Equal-priority overlap checking
-    # ------------------------------------------------------------------
-
     def _check_equal_priority_overlaps(self) -> None:
-        """Reject cell overlaps between enabled regions of equal priority.
-        
-        Returns
-        -------
-        None
-        
-        Raises
-        ------
-        ValueError
-            If two enabled equal-priority regions select one or more common mesh
-            cells.
-        
-        Notes
-        -----
-        Different-priority overlaps are intentional and are resolved by low-to-high
-        priority painting.
-        """
-        enabled_regions = [
-            region for region in self.regions if region.enabled
-        ]
-
+        enabled_regions = [region for region in self.regions if region.enabled]
         by_priority: dict[int, list[Region]] = {}
 
         for region in enabled_regions:
@@ -467,24 +406,16 @@ class DORTModel:
             if len(group) < 2:
                 continue
 
-            masks = {
-                region.name: region.mask(self.mesh)
-                for region in group
-            }
-
+            masks = {region.name: region.mask(self.mesh) for region in group}
             for i, region_a in enumerate(group[:-1]):
-                mask_a = masks[region_a.name]
-
                 for region_b in group[i + 1:]:
-                    overlap = mask_a & masks[region_b.name]
+                    overlap = masks[region_a.name] & masks[region_b.name]
                     n_overlap = int(np.count_nonzero(overlap))
-
-                    if n_overlap > 0:
+                    if n_overlap:
                         raise ValueError(
-                            f"Equal-priority overlap detected: regions "
-                            f"{region_a.name!r} and {region_b.name!r} both "
-                            f"have priority {priority} and overlap in "
-                            f"{n_overlap} mesh cell(s). Assign different "
+                            f"Equal-priority overlap detected: regions {region_a.name!r} "
+                            f"and {region_b.name!r} both have priority {priority} and "
+                            f"overlap in {n_overlap} mesh cell(s). Assign different "
                             "priorities or modify the geometry."
                         )
 
@@ -498,95 +429,42 @@ class DORTModel:
         allow_unfilled: bool = False,
         strict_region_bounds: bool = False,
     ) -> BuildSummary:
-        """Build and validate the final material and region maps.
-        
-        Parameters
-        ----------
-        allow_unfilled : bool, optional
-            If ``False``, any cell left without material assignment raises an error.
-            If ``True``, such cells retain material ID ``0`` and empty names.
-        strict_region_bounds : bool, optional
-            Passed to :meth:`validate`.
-        
-        Returns
-        -------
-        BuildSummary
-            Immutable summary of the completed build.
-        
-        Raises
-        ------
-        KeyError
-            If material references are invalid.
-        ValueError
-            If model validation fails, equal-priority regions overlap, or unfilled
-            cells remain when ``allow_unfilled`` is ``False``.
-        
-        Notes
-        -----
-        The algorithm first applies the optional background, then paints enabled
-        regions from low to high priority. Higher-priority regions therefore overwrite
-        lower-priority assignments.
-        """
-        self.validate(
-            strict_region_bounds=strict_region_bounds
-        )
-
+        self.validate(strict_region_bounds=strict_region_bounds)
         self._check_equal_priority_overlaps()
 
         shape = self.mesh.shape
-
         material_id_map = np.zeros(shape, dtype=int)
         material_name_map = np.full(shape, "", dtype=object)
         region_map = np.full(shape, "", dtype=object)
-
-        # Sentinel lower than any ordinary user-supplied priority.
         priority_sentinel = np.iinfo(np.int64).min
-        priority_map = np.full(
-            shape,
-            priority_sentinel,
-            dtype=np.int64,
-        )
+        priority_map = np.full(shape, priority_sentinel, dtype=np.int64)
 
-        # --------------------------------------------------------------
-        # Background fill
-        # --------------------------------------------------------------
         if self._background_material is not None:
             background = self.materials[self._background_material]
-
-            material_id_map[:, :] = background.dort_id
+            material_id_map[:, :] = background.material_id
             material_name_map[:, :] = background.name
             region_map[:, :] = "background"
 
-        # --------------------------------------------------------------
-        # Region painting: low priority -> high priority
-        # --------------------------------------------------------------
         for region in self.regions.sorted_by_priority():
             mask = region.mask(self.mesh)
-
             if not np.any(mask):
                 continue
 
             material = self.materials[region.material]
-
-            material_id_map[mask] = material.dort_id
+            material_id_map[mask] = material.material_id
             material_name_map[mask] = material.name
             region_map[mask] = region.name
             priority_map[mask] = region.priority
 
-        # --------------------------------------------------------------
-        # Final unfilled-cell check
-        # --------------------------------------------------------------
         unfilled = material_id_map == 0
         n_unfilled = int(np.count_nonzero(unfilled))
-
-        if n_unfilled > 0 and not allow_unfilled:
+        if n_unfilled and not allow_unfilled:
             raise ValueError(
-                f"Model contains {n_unfilled} unfilled mesh cell(s). "
-                "Define a background material, add regions that cover the "
-                "remaining cells, or call build(allow_unfilled=True)."
+                f"Model contains {n_unfilled} unfilled mesh cell(s). Define a background "
+                "material, add regions covering the remaining cells, or call "
+                "build(allow_unfilled=True)."
             )
 
-        # Save only after all checks succeed.
         self._material_id_map = material_id_map
         self._material_name_map = material_name_map
         self._region_map = region_map
@@ -597,9 +475,7 @@ class DORTModel:
             shape=shape,
             n_cells=self.mesh.n_cells,
             n_materials=len(self.materials),
-            n_regions=sum(
-                1 for region in self.regions if region.enabled
-            ),
+            n_regions=sum(1 for region in self.regions if region.enabled),
             background_material=self._background_material,
             warnings=tuple(self._warnings),
         )
@@ -608,208 +484,88 @@ class DORTModel:
     # Utility methods
     # ------------------------------------------------------------------
 
-    def cell_assignment(
-        self,
-        z_index: int,
-        r_index: int,
-    ) -> dict[str, object]:
-        """Return the final assignment and coordinates of one mesh cell.
-        
-        Parameters
-        ----------
-        z_index : int
-            Zero-based axial cell index.
-        r_index : int
-            Zero-based radial cell index.
-        
-        Returns
-        -------
-        dict
-            Dictionary containing indices, cell-centre coordinates, material ID/name,
-            owning region, and final priority.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        IndexError
-            If either index lies outside the mesh.
-        """
+    def cell_assignment(self, z_index: int, r_index: int) -> dict[str, object]:
         self._require_built()
-
         nz, nr = self.mesh.shape
-
         if not (0 <= z_index < nz):
-            raise IndexError(
-                f"z_index={z_index} outside valid range 0..{nz - 1}."
-            )
-
+            raise IndexError(f"z_index={z_index} outside valid range 0..{nz - 1}.")
         if not (0 <= r_index < nr):
-            raise IndexError(
-                f"r_index={r_index} outside valid range 0..{nr - 1}."
-            )
+            raise IndexError(f"r_index={r_index} outside valid range 0..{nr - 1}.")
 
-        return {
+        material_id = int(self._material_id_map[z_index, r_index])
+        material_name = self._material_name_map[z_index, r_index]
+        result: dict[str, object] = {
             "z_index": z_index,
             "r_index": r_index,
             "z_center": float(self.mesh.z.centers[z_index]),
             "r_center": float(self.mesh.r.centers[r_index]),
-            "material_id": int(
-                self._material_id_map[z_index, r_index]
-            ),
-            "material": self._material_name_map[
-                z_index, r_index
-            ],
+            "material_id": material_id,
+            "material": material_name,
             "region": self._region_map[z_index, r_index],
-            "priority": int(
-                self._priority_map[z_index, r_index]
-            ),
+            "priority": int(self._priority_map[z_index, r_index]),
         }
 
-    def material_cell_counts(self) -> dict[str, int]:
-        """Count final cells assigned to each material.
-        
-        Returns
-        -------
-        dict of str to int
-            Cell counts keyed by material name. ``"<unfilled>"`` is included when
-            applicable.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        """
-        self._require_built()
-
-        result: dict[str, int] = {}
-
-        for material in self.materials:
-            result[material.name] = int(
-                np.count_nonzero(
-                    self._material_id_map == material.dort_id
+        if material_id > 0:
+            legendre_order = self.materials[material_name].legendre_order
+            result["legendre_order"] = legendre_order
+            if material_name in self.mixtures:
+                result["mixf_first_table"] = self.mixtures.first_table_number(
+                    material_name, legendre_order
                 )
-            )
-
-        if np.any(self._material_id_map == 0):
-            result["<unfilled>"] = int(
-                np.count_nonzero(self._material_id_map == 0)
-            )
+                result["dort_9_material_number"] = self.mixtures.dort_material_number(
+                    material_name, legendre_order
+                )
 
         return result
 
-    def region_cell_counts(self) -> dict[str, int]:
-        """Count final cells owned by each region/background.
-        
-        Returns
-        -------
-        dict of str to int
-            Cell counts keyed by final owner name.
-        
-        Raises
-        ------
-        RuntimeError
-            If the model has not been built.
-        
-        Notes
-        -----
-        A low-priority region may own fewer final cells than its original geometric
-        mask because higher-priority regions can overwrite it.
-        """
+    def material_cell_counts(self) -> dict[str, int]:
         self._require_built()
-
-        unique, counts = np.unique(
-            self._region_map,
-            return_counts=True,
-        )
-
         result: dict[str, int] = {}
+        for material in self.materials:
+            result[material.name] = int(
+                np.count_nonzero(self._material_id_map == material.material_id)
+            )
+        if np.any(self._material_id_map == 0):
+            result["<unfilled>"] = int(np.count_nonzero(self._material_id_map == 0))
+        return result
 
+    def region_cell_counts(self) -> dict[str, int]:
+        self._require_built()
+        unique, counts = np.unique(self._region_map, return_counts=True)
+        result: dict[str, int] = {}
         for name, count in zip(unique, counts, strict=True):
-            label = name if name else "<unfilled>"
-            result[str(label)] = int(count)
-
+            result[str(name if name else "<unfilled>")] = int(count)
         return result
 
     def __repr__(self) -> str:
         status = "built" if self.is_built else "not built"
-
         return (
-            f"DORTModel(name={self.name!r}, "
-            f"materials={len(self.materials)}, "
-            f"regions={len(self.regions)}, "
+            f"DORTModel(name={self.name!r}, materials={len(self.materials)}, "
+            f"mixtures={len(self.mixtures)}, regions={len(self.regions)}, "
             f"mesh_shape={self.mesh.shape}, "
-            f"background={self._background_material!r}, "
-            f"status={status!r})"
+            f"background={self._background_material!r}, status={status!r})"
         )
 
 
 if __name__ == "__main__":
-    # --------------------------------------------------------------
-    # Demonstration / smoke test
-    # --------------------------------------------------------------
-    model = DORTModel("example_RZ_model")
-
-    model.add_material(
-        "Sodium",
-        description="Background coolant",
+    model = DORTModel("external_mixture_demo")
+    model.add_mixture(
+        "Mixture-1",
+        {5125: 1.10597e-2, 5131: 8.27546e-3, 825: 2.90028e-2},
+        legendre_order=5,
     )
-    model.add_material("Core")
-    model.add_material("SS316")
-    model.add_material("Air")
+    model.add_mixture("Mixture-2", {425: 1.1107e-1})
+    model.add_mixture("Mixture-3", {725: 1.89693e-5, 825: 8.15551e-5})
 
-    model.mesh.r.add_segment(
-        0.0,
-        200.0,
-        step=10.0,
-    )
-    model.mesh.z.add_segment(
-        -100.0,
-        100.0,
-        step=10.0,
-    )
-
-    model.set_background("Sodium")
-
+    model.mesh.r.add_segment(0.0, 200.0, step=10.0)
+    model.mesh.z.add_segment(-100.0, 100.0, step=10.0)
+    model.set_background("Mixture-1")
     model.add_region(
-        "core",
-        material="Core",
-        r=(0.0, 100.0),
-        z=(-50.0, 50.0),
-        priority=20,
+        "inner", material="Mixture-2", r=(0.0, 100.0), z=(-50.0, 50.0), priority=20
     )
-
     model.add_region(
-        "radial_shield",
-        material="SS316",
-        r=(100.0, 140.0),
-        z=(-50.0, 50.0),
-        priority=30,
+        "shield", material="Mixture-3", r=(100.0, 140.0), z=(-50.0, 50.0), priority=30
     )
-
-    model.add_region(
-        "penetration",
-        material="Air",
-        r=(80.0, 120.0),
-        z=(-10.0, 10.0),
-        priority=50,
-    )
-
-    summary = model.build()
-
-    print(model)
-    print(summary)
+    print(model.build())
     print()
-
-    print("Material cell counts:")
-    for name, count in model.material_cell_counts().items():
-        print(f"  {name:12s}: {count}")
-
-    print()
-    print("Final region ownership:")
-    for name, count in model.region_cell_counts().items():
-        print(f"  {name:16s}: {count}")
-
-    print()
-    print("Example cell:")
-    print(model.cell_assignment(z_index=10, r_index=9))
+    print(model.render_mixture_input())

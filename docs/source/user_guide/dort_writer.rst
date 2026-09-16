@@ -1,151 +1,100 @@
 DORT Writer
 ===========
 
-Create a writer only after the model has been built:
-
-.. code-block:: python
-
-   from writer import DORTWriter
-
-   model.build()
-   writer = DORTWriter(model)
-
-Creating a writer before ``model.build()`` raises an error.
-
-Zone policies
--------------
-
-DORT distinguishes a material **zone** from the material number assigned to
-that zone.
-
-``zone_policy="region"``
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-This is the recommended policy for shielding models.
+:class:`writer.DORTWriter` is the bridge between the built physical model and
+DORT/FIDO input fragments.  Create it only after ``model.build()``.
 
 .. code-block:: python
 
    writer = DORTWriter(
        model,
        zone_policy="region",
+       cross_section_unit=51,
+       cross_section_filename="mixf.cr",
    )
 
-Each final geometric owner gets a separate DORT zone. Different regions may
-therefore use the same physical material while retaining separate zone
-identities.
+Zone policy
+-----------
 
-Example:
-
-.. code-block:: text
-
-   Zone 1 -> background -> Sodium
-   Zone 2 -> core       -> Core
-   Zone 3 -> shield     -> SS316
-   Zone 4 -> vessel     -> SS316
+``zone_policy="region"``
+   Preserve final geometric-owner identity.  Two regions using the same
+   material can remain separate DORT zones.
 
 ``zone_policy="material"``
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Collapse all cells using the same material into one DORT zone.
 
-.. code-block:: python
+For shielding models, ``region`` is usually more informative during inspection
+and editing.
 
-   writer = DORTWriter(
-       model,
-       zone_policy="material",
-   )
+Generated geometry/material cards
+---------------------------------
 
-All cells containing the same material share one zone. This reduces ``IZM``
-but loses geometric-region identity.
+.. list-table::
+   :header-rows: 1
+   :widths: 18 82
 
-Generated arrays
-----------------
+   * - Card
+     - Meaning
+   * - ``2*``
+     - Z fine-mesh boundaries
+   * - ``4*``
+     - R fine-mesh boundaries
+   * - ``8$``
+     - material-zone number for every fine-mesh cell
+   * - ``9$``
+     - local cross-section reference for each material zone
+   * - ``84$``
+     - optional edit-region mapping helper
 
-The writer currently generates:
+For external P5 mixtures, typical ``9$$`` values are ``-1, -7, -13, ...``.
 
-.. code-block:: text
-
-   2*   Z fine-mesh boundaries
-   4*   R fine-mesh boundaries
-   8$   material zone by fine-space cell
-   9$   material number by material zone
-
-It can additionally generate:
-
-.. code-block:: text
-
-   84$  edit region by material zone
-
-using an identity edit-region mapping.
-
-Generate individual arrays with:
-
-.. code-block:: python
-
-   print(writer.array2())
-   print(writer.array4())
-   print(writer.array8())
-   print(writer.array9())
-   print(writer.array84_identity())
-
-The ``8$`` writer uses FIDO repetition operators:
-
-* ``R`` for repeated values within a row,
-* ``Q`` for repeated complete radial rows.
-
-Control values
---------------
-
-The writer reports values that must be consistent with DORT ``62$``:
-
-.. code-block:: python
-
-   writer.required_control_values
-
-Typical entries include:
-
-.. code-block:: text
-
-   IZM
-   IM
-   JM
-   INGEOM
-
-Inspect the complete writer summary with:
+Useful inspection methods
+-------------------------
 
 .. code-block:: python
 
    print(writer.summary_text())
+   print(writer.zone_table_text())
+   print(writer.material_layout_text())
 
-Writing a Block-4 fragment
---------------------------
+These are recommended before writing a production fragment.
 
-Generate ``2*``, ``4*``, ``8$``, and ``9$``:
-
-.. code-block:: python
-
-   writer.write_block4_fragment(
-       "geometry_material_fragment.inp"
-   )
-
-No terminating ``T`` is written by default because a real Block 4 may contain
-additional arrays.
-
-When these are genuinely the final arrays in the block:
+Write Block 4 fragments
+-----------------------
 
 .. code-block:: python
 
-   writer.write_block4_fragment(
-       "geometry_material_fragment.inp",
-       terminate_block=True,
-   )
+   writer.write_block4_fragment("geometry_material.inc")
 
-To regenerate only material filling when the DORT deck already has the mesh
-arrays:
+The default fragment contains ``2*``, ``4*``, ``8$``, and ``9$``.  It does not
+pretend to finish every remaining Block-4 card.
+
+Cross-section file unit
+-----------------------
+
+The local sample reads ``mixf.cr`` on logical unit 51.  The writer exposes this
+through ``required_file_units`` and the run-control builder uses it as
+``NTSIG``.
 
 .. code-block:: python
 
-   writer.write_block4_fragment(
-       "material_only.inp",
-       include_mesh=False,
+   print(writer.required_file_units)
+   print(writer.array61())
+
+Run and source builders
+-----------------------
+
+The writer also provides convenient entry points without mixing their logic
+into geometry serialization:
+
+.. code-block:: python
+
+   run = writer.create_run_control(
+       "eigenvalue_first",
+       energy_groups=217,
+       quadrature_directions=48,
    )
 
-This writes only ``8$`` and ``9$``.
+   source = writer.create_source(background=1.0e-20)
+
+See :doc:`run_control` and :doc:`fixed_source`.

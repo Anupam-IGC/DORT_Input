@@ -1,184 +1,117 @@
 # DORT R-Z Input Preparation API
 
-A lightweight Python API for preparing **DORT two-dimensional R-Z transport inputs**.
+A Python toolkit for preparing **R-Z inputs for a locally modified DORT workflow**.
+The package focuses on model-driven input preparation: define the physical model
+and calculation intent in readable Python, then let the API generate the
+corresponding DORT/FIDO fragments.
 
-The project provides tools for constructing and validating R-Z mesh/material models,
-visualizing the resulting geometry, generating DORT/FIDO geometry-material arrays,
-and calculating angular quadrature sets.
+## What it covers
 
-> **Project status:** under active development. The API currently prepares important
-> parts of a DORT input, but it does not yet generate a complete problem deck.
+- piecewise R/Z mesh construction and region filling;
+- natural-number material registration and overlap/priority checks;
+- external `mix.inp -> mixf.cr` macroscopic mixture workflow;
+- automatic local negative `9$$` references (`-1, -7, -13, ...` for P5);
+- material/region plots and zone inspection;
+- legacy and product angular quadrature (`81*`, `82*`, `83*`);
+- readable first-eigenvalue, rerun, and fixed-source run controls;
+- unit-20/unit-21 eigenvalue restart workflow;
+- fixed-source `96**` fields selected from materials, regions, zones, or R-Z mesh;
+- file-based `98**` group spectra.
 
-## Features
+> **Local convention:** macroscopic mixing is performed by the external
+> `m_ia_oa.for` program. `mixf.cr` is then read by modified DORT on the
+> configured `NTSIG` unit (51 in the verified sample). The API does not replace
+> this with stock DORT `10$$/11$$/12*` in-core mixing.
 
-- Piecewise-uniform and explicit **R/Z meshes**
-- Named **materials** and rectangular R-Z **regions**
-- Priority-based filling for nested/overlapping structures
-- Validation of mesh, material references, overlaps, and unfilled cells
-- Material and region plots for model verification
-- DORT/FIDO geometry-material arrays:
-  - `2*` — Z mesh boundaries
-  - `4*` — R mesh boundaries
-  - `8$` — material-zone map
-  - `9$` — zone-to-material mapping
-  - optional identity `84$` edit-region mapping
-- Angular quadrature generation:
-  - legacy DORT/DOQDP-compatible S_N construction
-  - positive-weight product quadrature for higher angular resolution
-  - validation of directions, weights, ordering, and angular moments
-  - direct generation of DORT `81*`, `82*`, and `83*` arrays
+## Quick start
 
-## Requirements
-
-Python 3.10+ is recommended.
-
-```bash
-pip install -r requirements.txt
-```
-
-Run scripts from the repository root, or ensure the repository root is on
-`PYTHONPATH`.
-
-## Quick Start
-
-### R-Z geometry and material filling
+The recommended mixture workflow is spreadsheet-driven.  A workbook contains
+``Nuclide`` and ``MAT No.`` columns followed by one column per final mixture.
 
 ```python
 from model import DORTModel
 from writer import DORTWriter
 
-model = DORTModel("simple_shield")
+model = DORTModel("demo")
+model.prepare_mixtures_from_excel(
+    "mixtures.xlsx",
+    sheet_name="Read",
+    legendre_order=5,
+    output_dir="mixture_output",
+)
 
-for material in ("Sodium", "Core", "SS316"):
-    model.add_material(material)
-
+# Workbook column names are now normal model materials.
 model.mesh.r.add_segment(0.0, 100.0, step=5.0)
-model.mesh.r.add_segment(100.0, 140.0, step=2.0)
 model.mesh.z.add_segment(-50.0, 50.0, step=5.0)
-
 model.set_background("Sodium")
-
 model.add_region(
-    "core",
-    material="Core",
-    r=(0.0, 100.0),
-    z=(-50.0, 50.0),
+    "steel_region",
+    material="Carbon Steel",
+    r=(60.0, 100.0),
+    z=(-30.0, 30.0),
     priority=20,
 )
-
-model.add_region(
-    "shield",
-    material="SS316",
-    r=(100.0, 140.0),
-    z=(-50.0, 50.0),
-    priority=30,
-)
-
 model.build()
 
-writer = DORTWriter(model)
-writer.write_block4_fragment("geometry_material_fragment.inp")
+writer = DORTWriter(model, cross_section_unit=51)
+writer.write_block4_fragment("geometry_material.inc")
 ```
 
-### Angular quadrature
-
-```python
-from quadrature import generate_legacy_quadrature
-
-quad = generate_legacy_quadrature(
-    order=8,
-    symmetry="half",
-)
-
-print(quad.summary_text())
-quad.write_dort("quadrature.inc")
-```
-
-For higher angular resolution:
-
-```python
-from quadrature import generate_product_quadrature
-
-quad = generate_product_quadrature(
-    polar_order=24,
-    azimuthal_order=32,
-)
-```
-
-The quadrature module can directly generate:
-
-```text
-81*  directional weights
-82*  radial direction cosines
-83*  axial direction cosines
-```
-
-## Main Modules
-
-| Module | Purpose |
-|---|---|
-| `mesh.py` | R and Z mesh construction |
-| `materials.py` | Material registry |
-| `regions.py` | R-Z region definitions |
-| `model.py` | Model assembly, validation, and final maps |
-| `plotting.py` | Material and region visualization |
-| `writer.py` | DORT/FIDO geometry-material output |
-| `quadrature.py` | DORT angular quadrature generation and validation |
+The spreadsheet import writes ``mix.inp``, ``Mixture_Names.txt``, and the
+compact ``dort_mix_cards.txt`` used by the established external-mixer workflow.
+Programmatic ``model.add_mixture(...)`` definitions remain available.
 
 ## Documentation
 
-Detailed usage, examples, API references, DORT array mapping, and development
-notes are maintained in the Sphinx/Read-the-Docs documentation:
-
-- [Documentation source](docs/source/index.rst)
-- [DORT mapping notes](docs/DORT_MAPPING.md)
+The Sphinx documentation is organized into a short **Start** section, a nested
+**User Guide**, comprehensive **Examples**, and an autodoc **API Reference**.
 
 Build locally with:
 
 ```bash
-pip install -r docs/requirements.txt
 cd docs
+make clean
 make html
 ```
 
-On Windows:
+Behind a proxy or on an offline machine:
 
-```bat
-cd docs
-make.bat html
+```bash
+DORT_DOCS_OFFLINE=1 make html
 ```
 
 Then open `docs/build/html/index.html`.
 
-## Recommended Workflow
+## Comprehensive examples
 
-```text
-define mesh/materials/regions
-        ↓
-build and validate model
-        ↓
-inspect material/region plots
-        ↓
-generate/select quadrature
-        ↓
-validate quadrature
-        ↓
-generate DORT input fragments
-        ↓
-verify against the complete DORT deck
+Run from the repository root:
+
+```bash
+python examples/comprehensive_mixture_spreadsheet.py
+python examples/comprehensive_geometry.py
+python examples/comprehensive_eigenvalue_first.py
+python examples/comprehensive_eigenvalue_rerun.py
+python examples/comprehensive_fixed_source.py
+python examples/comprehensive_quadrature.py
 ```
 
-For production calculations, perform appropriate spatial, angular, and
-scattering-order convergence checks.
+Generated files are written under `example_output/`.
 
-## Current Scope
+## Main modules
 
-The project currently focuses on **R-Z geometry/material preparation and angular
-quadrature generation**. Full automatic DORT-deck generation, source definition,
-cross-section mixing, execution, and output parsing remain future development
-areas.
+| Module | Purpose |
+|---|---|
+| `model.py` | high-level physical model |
+| `mesh.py`, `regions.py` | R-Z geometry |
+| `materials.py`, `mixtures.py` | materials, Excel mixture import, and external cross-section recipes |
+| `writer.py` | DORT geometry/material fragments |
+| `run_control.py` | readable calculation modes and control settings |
+| `source.py` | fixed-source spatial field and group spectrum |
+| `quadrature.py` | angular quadrature generation |
+| `plotting.py`, `quadrature_plotting.py` | visual inspection |
 
-## License
+Spreadsheet import requires `pandas` and `openpyxl`; both are included in `requirements.txt`.
 
-No license is currently included. Add an appropriate `LICENSE` file before
-broad public distribution.
+The project is under active development; it deliberately generates validated
+fragments rather than claiming full coverage of every locally modified DORT
+input card.

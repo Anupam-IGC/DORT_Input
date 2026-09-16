@@ -1,0 +1,92 @@
+/* ReadTheDocs-theme refinements for the DORT API documentation. */
+
+.wy-nav-content {
+    max-width: 1180px;
+}
+
+.rst-content h1 {
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid #e6e9ed;
+}
+
+.rst-content h2 {
+    margin-top: 1.8rem;
+}
+
+.rst-content h3 {
+    margin-top: 1.35rem;
+}
+
+.rst-content code.literal,
+.rst-content tt.literal {
+    white-space: normal;
+}
+
+.rst-content div[class^="highlight"] pre {
+    padding: 1rem 1.1rem;
+    line-height: 1.48;
+}
+
+.rst-content .highlight {
+    margin-bottom: 1.15rem;
+}
+
+.rst-content table.docutils,
+.rst-content table.field-list {
+    width: 100%;
+}
+
+.rst-content table.docutils th,
+.rst-content table.docutils td {
+    vertical-align: top;
+}
+
+.rst-content .admonition {
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1.2rem 0 1.8rem 0;
+}
+
+.doc-card {
+    border: 1px solid #e2e6ea;
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.doc-card > p:first-child {
+    margin-top: 0;
+}
+
+.doc-card > p:last-child {
+    margin-bottom: 0;
+}
+
+.workflow-box {
+    border-left: 4px solid #2980b9;
+    padding: 0.55rem 0.9rem;
+    margin: 1rem 0 1.5rem 0;
+    background: #f7f9fb;
+}
+
+.small-note {
+    font-size: 0.92em;
+    color: #5f6b73;
+}
+
+@media screen and (max-width: 768px) {
+    .wy-nav-content {
+        padding: 1.1rem;
+    }
+
+    .doc-grid {
+        grid-template-columns: 1fr;
+    }
+}

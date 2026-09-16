@@ -8,8 +8,10 @@ Python 3.10 or newer is recommended.
 
 The runtime dependencies are currently:
 
-* NumPy
-* Matplotlib
+* NumPy;
+* Matplotlib;
+* pandas — spreadsheet mixture-table import;
+* openpyxl — Excel ``.xlsx`` reader used by pandas.
 
 Install the repository requirements with:
 
@@ -28,7 +30,14 @@ For example:
 
 .. code-block:: bash
 
-   python examples/basic_model.py
+   python examples/comprehensive_mixture_spreadsheet.py
+
+Spreadsheet mixture input
+-------------------------
+
+The example workbook is under ``examples/data/mixtures_example.xlsx``.  A
+normal project may keep its own workbook anywhere and pass the path to
+``model.load_mixtures_from_excel(...)`` or ``model.prepare_mixtures_from_excel(...)``.
 
 Documentation dependencies
 --------------------------
@@ -46,22 +55,10 @@ Build the documentation locally:
    cd docs
    make html
 
-On Windows:
+Behind a restricted proxy, use:
 
-.. code-block:: bat
+.. code-block:: bash
 
-   cd docs
-   make.bat html
+   DORT_DOCS_OFFLINE=1 make html
 
-The generated site will be available under:
-
-.. code-block:: text
-
-   docs/build/html/index.html
-
-Read the Docs
--------------
-
-The repository root contains ``.readthedocs.yaml``. After importing the
-repository into Read the Docs, builds can be triggered automatically by
-commits pushed to GitHub.
+The generated site is under ``docs/build/html/index.html``.

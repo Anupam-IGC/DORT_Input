@@ -397,17 +397,13 @@ class MeshAxis:
 class Mesh:
     """Represent a two-dimensional cylindrical R-Z mesh.
     
-    Attributes
-    ----------
-    r : MeshAxis
-        Radial mesh axis.
-    z : MeshAxis
-        Axial mesh axis.
-    
     Notes
     -----
-    All project maps use shape ``(nz, nr)`` so that the first array index is the
-    Z index and the second is the R index.
+    ``r`` is the radial :class:`MeshAxis` and ``z`` is the axial
+    :class:`MeshAxis`.
+
+    All project maps use shape ``(nz, nr)`` so that the first array
+    index is the Z index and the second is the R index.
     """
 
     r: MeshAxis = field(default_factory=lambda: MeshAxis("R"))

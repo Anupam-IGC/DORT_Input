@@ -1,128 +1,153 @@
-Getting Started
-===============
+Quick Start
+===========
 
-The API is designed to separate three layers:
+This page shows the shortest path from a physical R-Z model to useful DORT
+input fragments.  For fuller scripts, go directly to :doc:`examples/index`.
 
-.. code-block:: text
+1. Create the model and load mixtures
+-------------------------------------
 
-   physical model
-       ↓
-   mesh-cell representation
-       ↓
-   DORT representation
-
-The user should describe physical intent, for example:
-
-.. code-block:: text
-
-   "this region is SS316"
-
-rather than manually creating thousands of DORT zone entries.
-
-The current conversion chain is:
-
-.. code-block:: text
-
-   physical region
-       ↓
-   Boolean mesh mask
-       ↓
-   final region/material map
-       ↓
-   DORT zone map
-       ↓
-   FIDO input
-
-Minimal example
----------------
+For routine calculations, start from the standard mixture workbook:
 
 .. code-block:: python
 
    from model import DORTModel
-   from plotting import plot_materials, plot_regions
-   from writer import DORTWriter
 
-   model = DORTModel("simple_shield")
+   model = DORTModel("demo")
 
-   # Materials
-   for name in ("Sodium", "Core", "SS316", "B4C", "Air"):
-       model.add_material(name)
+   model.prepare_mixtures_from_excel(
+       "mixtures.xlsx",
+       sheet_name="Read",
+       legendre_order=5,
+       output_dir="mixture_output",
+   )
 
-   # R mesh
-   model.mesh.r.add_segment(0.0, 100.0, step=5.0)
-   model.mesh.r.add_segment(100.0, 140.0, step=2.0)
-   model.mesh.r.add_segment(140.0, 200.0, step=5.0)
+The workbook contains ``Nuclide`` and ``MAT No.`` followed by one column per
+mixture.  This one call registers the mixture columns as model materials and
+writes ``mix.inp``, ``Mixture_Names.txt``, and ``dort_mix_cards.txt``.
 
-   # Z mesh
-   model.mesh.z.add_segment(-100.0, -50.0, step=5.0)
-   model.mesh.z.add_segment(-50.0, 50.0, step=2.0)
-   model.mesh.z.add_segment(50.0, 100.0, step=5.0)
+``mix.inp`` is consumed by the external ``m_ia_oa.for`` program, which creates
+``mixf.cr``.  See :doc:`user_guide/mixtures` for the workbook format.
 
-   # Background
+2. Define R-Z geometry
+----------------------
+
+.. code-block:: python
+
+   model.mesh.r.add_segment(0.0, 80.0, step=5.0)
+   model.mesh.r.add_segment(80.0, 120.0, step=2.0)
+   model.mesh.z.add_segment(-80.0, -40.0, step=5.0)
+   model.mesh.z.add_segment(-40.0, 40.0, step=2.0)
+   model.mesh.z.add_segment(40.0, 80.0, step=5.0)
+
    model.set_background("Sodium")
 
-   # Regions
    model.add_region(
-       "core",
-       material="Core",
-       r=(0.0, 100.0),
-       z=(-50.0, 50.0),
+       "central_region",
+       material="Graphite",
+       r=(0.0, 80.0),
+       z=(-40.0, 40.0),
        priority=20,
    )
-
    model.add_region(
        "radial_shield",
-       material="SS316",
-       r=(100.0, 140.0),
+       material="Carbon Steel",
+       r=(80.0, 120.0),
        z=(-50.0, 50.0),
        priority=30,
-   )
-
-   model.add_region(
-       "bottom_shield",
-       material="B4C",
-       r=(0.0, 140.0),
-       z=(-100.0, -50.0),
-       priority=30,
-   )
-
-   model.add_region(
-       "penetration",
-       material="Air",
-       r=(80.0, 120.0),
-       z=(-10.0, 10.0),
-       priority=50,
    )
 
    summary = model.build()
    print(summary)
 
-   # Verify the model visually before exporting.
-   fig, ax = plot_materials(model, show_mesh=True)
-   fig.savefig("material_map.png", dpi=200, bbox_inches="tight")
+3. Create the DORT writer
+-------------------------
 
-   fig, ax = plot_regions(model, show_mesh=True)
-   fig.savefig("region_map.png", dpi=200, bbox_inches="tight")
+.. code-block:: python
 
-   # Generate DORT arrays.
-   writer = DORTWriter(model)
+   from writer import DORTWriter
+
+   writer = DORTWriter(
+       model,
+       zone_policy="region",
+       cross_section_unit=51,
+       cross_section_filename="mixf.cr",
+   )
+
    print(writer.summary_text())
+   writer.write_block4_fragment("geometry_material.inc")
 
-   writer.write_block4_fragment("geometry_material_fragment.inp")
+For the supplied P5 workbook, the generated mixture references are ``-1, -7, -13, -19, -25, -31`` in workbook-column order.
 
-Quadrature stage
-----------------
+4. Choose the run mode using readable settings
+----------------------------------------------
 
-Angular quadrature should be treated as a distinct input-preparation stage
-after the spatial model has been verified. For DORT-compatible serialization,
-the calculated set must ultimately provide the directional weights and the R
-and Z direction cosines used by ``81*``, ``82*`` and ``83*``.
+.. code-block:: python
 
-See :doc:`user_guide/quadrature` for the DORT mapping and compatibility notes.
+   run = writer.create_run_control(
+       "eigenvalue_first",
+       energy_groups=217,
+       quadrature_directions=48,
+       neutron_groups=175,
+       maximum_outer_iterations=20,
+       left_boundary="reflected",
+       right_boundary="void",
+       flux_extrapolation="theta_weighted",
+   )
 
-Recommended practice
---------------------
+   print(run.settings_help())
+   print(run.control_fragment())
 
-For production models, do not skip visual verification. Inspect warnings,
-material/region cell counts, and any suspicious cells before generating the
-DORT fragment.
+Use ``"eigenvalue_rerun"`` for a restart from unit-20 ``guessflux.bin`` or
+``"fixed_source"`` for a fixed-source calculation.
+
+5. Optional: define a fixed source from the built model
+-------------------------------------------------------
+
+.. code-block:: python
+
+   source = writer.create_source(background=1.0e-20)
+   source.by_region("central_region", strength=1.0)
+   source.set_energy_spectrum_file("source_spectrum.txt")
+
+   fixed = writer.create_run_control(
+       "fixed_source",
+       energy_groups=217,
+       quadrature_directions=48,
+   )
+   fixed.attach_source(source)
+
+   print(fixed.source_fragment())
+
+The API generates ``96**`` from the existing R-Z model and ``98**`` from the
+spectrum file.
+
+Next steps
+----------
+
+.. container:: doc-grid
+
+   .. container:: doc-card
+
+      **Geometry and plotting**
+
+      :doc:`user_guide/mesh` · :doc:`user_guide/regions` ·
+      :doc:`user_guide/plotting`
+
+   .. container:: doc-card
+
+      **Mixtures and DORT mapping**
+
+      :doc:`user_guide/mixtures` · :doc:`user_guide/dort_mapping`
+
+   .. container:: doc-card
+
+      **Run modes**
+
+      :doc:`user_guide/run_control`
+
+   .. container:: doc-card
+
+      **Fixed source**
+
+      :doc:`user_guide/fixed_source`

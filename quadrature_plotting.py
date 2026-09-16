@@ -24,21 +24,27 @@ Provided plotting styles
 
 Typical usage
 -------------
-from quadrature import generate_product_quadrature
-from quadrature_plotting import plot_quadrature_set
+.. code-block:: python
 
-quadrature = generate_product_quadrature(
-    polar_order=24,
-    azimuthal_order=32,
-)
+   from quadrature import generate_product_quadrature
+   from quadrature_plotting import plot_quadrature_set
 
-fig, ax = plot_quadrature_set(
-    quadrature,
-    display_mode="indexed_levels",
-    scale_markers_by_weight=True,
-)
+   quadrature = generate_product_quadrature(
+       polar_order=24,
+       azimuthal_order=32,
+   )
 
-fig.savefig("quadrature_distribution.png", dpi=200, bbox_inches="tight")
+   fig, ax = plot_quadrature_set(
+       quadrature,
+       display_mode="indexed_levels",
+       scale_markers_by_weight=True,
+   )
+
+   fig.savefig(
+       "quadrature_distribution.png",
+       dpi=200,
+       bbox_inches="tight",
+   )
 """
 
 from __future__ import annotations

@@ -1,112 +1,112 @@
 DORT R-Z Input Preparation API
 ==============================
 
-The **DORT R-Z Input Preparation API** is a lightweight Python interface for
-preparing R-Z mesh geometry and material filling data for DORT calculations.
-
-Instead of manually constructing large DORT zone arrays, the user describes a
-model in terms of readable material names, radial and axial mesh segments,
-rectangular physical regions, and region priorities. The API converts this
-description into mesh-cell material/region maps and DORT/FIDO geometry-material
-arrays.
+A Python interface for preparing **R-Z DORT calculations** using the verified
+local workflow: geometry and material filling, external macroscopic mixture
+preparation, angular quadrature, run-mode controls, and fixed-source spatial
+fields.
 
 .. note::
 
-   The project is in early development. The current implementation focuses on
-   R-Z mesh and material filling preparation. It does **not** yet generate a
-   complete DORT problem deck.
+   This project follows a **locally modified DORT workflow**.  In particular,
+   macroscopic mixtures are prepared externally and the resulting ``mixf.cr``
+   tables are referenced through negative ``9$$`` entries.  The documentation
+   describes the verified local behavior rather than silently substituting the
+   stock DORT in-core mixing convention.
 
-Main capabilities
+.. container:: doc-grid
+
+   .. container:: doc-card
+
+      **Start here**
+
+      Build a small model, generate DORT fragments, and understand the overall
+      workflow.
+
+      :doc:`Open the quick start <getting_started>`
+
+   .. container:: doc-card
+
+      **User guide**
+
+      Geometry, materials, external mixtures, run controls, fixed sources,
+      quadrature, plotting, and writer details.
+
+      :doc:`Browse the user guide <user_guide/index>`
+
+   .. container:: doc-card
+
+      **Comprehensive examples**
+
+      End-to-end scripts for spreadsheet mixtures, geometry inspection,
+      eigenvalue first/rerun calculations, fixed-source preparation, and quadrature.
+
+      :doc:`Browse examples <examples/index>`
+
+   .. container:: doc-card
+
+      **API reference**
+
+      Autodoc reference for the Python modules and public classes/functions.
+
+      :doc:`Open API reference <api/index>`
+
+Verified workflow
 -----------------
-
-* piecewise-uniform or explicit R and Z meshes,
-* named material registration,
-* rectangular R-Z regions,
-* priority-based material filling,
-* equal-priority overlap checking,
-* material and region maps for verification,
-* visual plotting of the final model,
-* DORT material-zone generation,
-* FIDO-formatted ``2*``, ``4*``, ``8$`` and ``9$`` arrays,
-* optional identity ``84$`` edit-region mapping.
-
-Typical workflow
-----------------
 
 .. code-block:: text
 
-   create model
-       ↓
-   add materials
-       ↓
-   define R/Z mesh
-       ↓
-   set background
-       ↓
-   add regions and priorities
-       ↓
-   model.build()
-       ↓
-   inspect and plot
-       ↓
-   create DORTWriter
-       ↓
-   generate DORT/FIDO arrays
+   mixture workbook / definitions
+              |
+              v
+        define R-Z mesh
+              |
+              v
+      define physical regions
+              |
+              v
+        build + inspect model
+              |
+              +--------------------+
+              |                    |
+              v                    v
+        external mixer        quadrature
+     mix.inp -> mixf.cr       81*/82*/83*
+              |                    |
+              +---------+----------+
+                        v
+                 DORT writer
+               2*/4*/8$/9$
+                        |
+                        v
+                  run control
+                 61$$/62$$/63**
+                        |
+             +----------+----------+
+             |                     |
+             v                     v
+        eigenvalue            fixed source
+       first / rerun          96** + 98**
 
-Documentation
+Project scope
 -------------
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Getting Started
+The API intentionally generates **validated input fragments** rather than
+pretending to generate every possible locally modified DORT card.  Advanced or
+site-specific cards can still be retained in a trusted template deck.
 
+For a concise description of the design and conventions, see
+:doc:`overview`.
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   overview
    getting_started
    installation
-
-.. toctree::
-   :maxdepth: 2
-   :caption: User Guide
-
-   user_guide/mesh
-   user_guide/materials
-   user_guide/regions
-   user_guide/building
-   user_guide/inspection
-   user_guide/plotting
-   user_guide/quadrature
-   user_guide/dort_writer
-   user_guide/dort_mapping
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Examples
-
-   examples/basic_model
-   examples/external_material_numbers
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API Reference
-
-   api/mesh
-   api/materials
-   api/regions
-   api/model
-   api/quadrature
-   api/quadrature_plotting
-   api/plotting
-   api/writer
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Development
-
+   user_guide/index
+   examples/index
+   api/index
    limitations
    roadmap
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

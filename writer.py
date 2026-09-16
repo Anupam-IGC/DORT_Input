@@ -1,12 +1,18 @@
-"""DORT/FIDO serialization for geometry and material filling.
+"""DORT/FIDO serialization for R-Z geometry and local external mixtures.
 
-The writer translates a built :class:`model.DORTModel` into ordinary R-Z
-geometry/material input arrays. The present writer covers ``2*``, ``4*``,
-``8$``, ``9$`` and an optional identity ``84$`` helper.
+The local DORT installation used by this project reads pre-mixed macroscopic
+cross sections from an external file (normally ``mixf.cr``).  The supplied
+``m_ia_oa.for`` program creates that file from microscopic ``igc-s3`` data.
 
-Directional quadrature is documented as a separate processing stage because
-DORT stores it in ``81*`` (weights), ``82*`` (R-direction cosine), and ``83*``
-(Z-direction cosine).
+For a P_L calculation, each physical mixture occupies L+1 consecutive records
+in ``mixf.cr``.  The locally modified DORT uses the *negative* first record
+number in array 9$::
+
+    P5 mixture 1 -> tables  1..6 -> 9$ =  -1
+    P5 mixture 2 -> tables  7..12 -> 9$ = -7
+    P5 mixture 3 -> tables 13..18 -> 9$ = -13
+
+The standard DORT in-core 10$/11$/12* mixing table is therefore not generated.
 """
 
 from __future__ import annotations
@@ -22,77 +28,32 @@ from model import DORTModel
 
 @dataclass(frozen=True)
 class ZoneDefinition:
-    """Describe one generated DORT material zone.
-    
-    Parameters
-    ----------
-    zone_id : int
-        One-based DORT zone number.
-    owner : str
-        Geometric owner label or material-derived owner label.
-    material : str
-        Material name used by the zone.
-    material_number : int
-        Material number written to DORT ``9$``.
-    n_cells : int
-        Number of fine-space cells assigned to the zone.
-    """
+    """One generated DORT material zone."""
+
     zone_id: int
     owner: str
     material: str
+    material_id: int
     material_number: int
+    legendre_order: int
+    cross_section_tables: tuple[int, ...]
     n_cells: int
 
 
 @dataclass(frozen=True)
 class ZoneData:
-    """Store the generated zone map and zone definitions.
-    
-    Parameters
-    ----------
-    zone_map : numpy.ndarray
-        Integer zone map with shape ``(JM, IM)``.
-    zones : tuple of ZoneDefinition
-        Zone definitions in DORT zone-number order.
-    """
     zone_map: np.ndarray
     zones: tuple[ZoneDefinition, ...]
 
     @property
     def izm(self) -> int:
-        """Return the number of generated material zones.
-        
-        Returns
-        -------
-        int
-            ``IZM``.
-        """
         return len(self.zones)
 
 
 def _format_real(value: float, precision: int = 8) -> str:
-    """Format one finite floating-point value for FIDO free-field input.
-    
-    Parameters
-    ----------
-    value : float
-        Value to format.
-    precision : int, optional
-        Significant-digit target.
-    
-    Returns
-    -------
-    str
-        FIDO-compatible numeric token.
-    
-    Raises
-    ------
-    ValueError
-        If ``value`` is not finite.
-    """
     value = float(value)
     if not np.isfinite(value):
-        raise ValueError("Cannot write non-finite mesh coordinate.")
+        raise ValueError("Cannot write non-finite value.")
     if value == 0.0:
         return "0.0"
     if 1.0e-4 <= abs(value) < 1.0e7:
@@ -101,33 +62,11 @@ def _format_real(value: float, precision: int = 8) -> str:
 
 
 def _wrap_fields(origin: str, fields: list[str], *, width: int = 72) -> str:
-    """Wrap FIDO free-field tokens without splitting operator clauses.
-    
-    Parameters
-    ----------
-    origin : str
-        Array-origin token such as ``"2**"`` or ``"9$$"``.
-    fields : list of str
-        Tokens to append.
-    width : int, optional
-        Preferred maximum line width.
-    
-    Returns
-    -------
-    str
-        Wrapped multi-line text.
-    
-    Raises
-    ------
-    ValueError
-        If ``width`` is too small for practical free-field formatting.
-    """
     if width < 20:
         raise ValueError("width must be at least 20.")
 
     lines: list[str] = []
     current = origin.rstrip()
-
     for field in fields:
         field = str(field).strip()
         if not field:
@@ -139,33 +78,12 @@ def _wrap_fields(origin: str, fields: list[str], *, width: int = 72) -> str:
             if current:
                 lines.append(current.rstrip())
             current = "    " + field
-
     if current:
         lines.append(current.rstrip())
-
     return "\n".join(lines)
 
 
 def _rle_row(row: np.ndarray, *, min_run: int = 2) -> list[str]:
-    """Encode one integer row using FIDO ``R`` repetition syntax.
-    
-    Parameters
-    ----------
-    row : numpy.ndarray
-        One-dimensional integer row.
-    min_run : int, optional
-        Minimum repeated-run length to compress.
-    
-    Returns
-    -------
-    list of str
-        Encoded tokens.
-    
-    Raises
-    ------
-    ValueError
-        If ``row`` is not one-dimensional.
-    """
     row = np.asarray(row, dtype=int)
     if row.ndim != 1:
         raise ValueError("row must be one-dimensional.")
@@ -187,33 +105,27 @@ def _rle_row(row: np.ndarray, *, min_run: int = 2) -> list[str]:
 
 
 class DORTWriter:
-    """Translate a built model to DORT/FIDO R-Z geometry/material arrays.
-    
+    """Translate a built model to DORT/FIDO geometry/material arrays.
+
     Parameters
     ----------
-    model : DORTModel
-        Already-built model.
-    zone_policy : {'region', 'material'}, optional
-        ``'region'`` creates a separate zone for every final geometric owner;
-        ``'material'`` creates one zone for every material actually used.
-    material_numbers : mapping of str to int, optional
-        Override mapping from material name to the material number written in
-        ``9$``. This supports external GIP/cross-section identifiers that differ
-        from the project's positive internal IDs.
-    line_width : int, optional
-        Preferred free-field line width. The default of 72 follows traditional
-        FIDO practice.
-    
-    Raises
-    ------
-    RuntimeError
-        If the model has not been built.
-    ValueError
-        If ``zone_policy`` or ``line_width`` is invalid.
-    KeyError
-        If ``material_numbers`` contains an unknown material.
-    TypeError
-        If an external material number is not an integer.
+    model
+        Already-built :class:`model.DORTModel`.
+    zone_policy
+        ``"region"`` creates one zone per final geometric owner;
+        ``"material"`` creates one zone per used material.
+    material_numbers
+        Optional explicit ``material name -> 9$ value`` mapping for advanced
+        or legacy cases. Values may be positive or negative but may not be zero.
+        When an external mixture is defined, its 9$ value is calculated
+        automatically and should not be overridden.
+    cross_section_unit
+        Logical unit used by DORT ``NTSIG`` for ``mixf.cr``. The local sample
+        deck uses unit 51.
+    cross_section_filename
+        Informational filename associated with ``cross_section_unit``.
+    line_width
+        Preferred FIDO free-field line width.
     """
 
     def __init__(
@@ -222,6 +134,8 @@ class DORTWriter:
         *,
         zone_policy: str = "region",
         material_numbers: Mapping[str, int] | None = None,
+        cross_section_unit: int = 51,
+        cross_section_filename: str = "mixf.cr",
         line_width: int = 72,
     ) -> None:
         if not model.is_built:
@@ -230,96 +144,131 @@ class DORTWriter:
             raise ValueError("zone_policy must be 'region' or 'material'.")
         if line_width < 20:
             raise ValueError("line_width must be at least 20.")
+        if isinstance(cross_section_unit, bool) or not isinstance(cross_section_unit, int):
+            raise TypeError("cross_section_unit must be an integer.")
+        if cross_section_unit <= 0:
+            raise ValueError("cross_section_unit must be positive.")
+
+        model.materials.validate()
+        model.mixtures.validate(material_names=model.materials.names)
 
         self.model = model
         self.zone_policy = zone_policy
         self.line_width = int(line_width)
+        self.cross_section_unit = cross_section_unit
+        self.cross_section_filename = str(cross_section_filename)
         self._material_numbers = dict(material_numbers or {})
         self._validate_material_numbers()
+        self._validate_used_mixtures()
         self._zone_data = self._build_zone_data()
 
     @property
     def im(self) -> int:
-        """Return the number of radial fine-mesh intervals.
-        
-        Returns
-        -------
-        int
-            DORT ``IM``.
-        """
         return self.model.mesh.r.n_cells
 
     @property
     def jm(self) -> int:
-        """Return the number of axial fine-mesh intervals.
-        
-        Returns
-        -------
-        int
-            DORT ``JM``.
-        """
         return self.model.mesh.z.n_cells
 
     @property
     def izm(self) -> int:
-        """Return the number of generated material zones.
-        
-        Returns
-        -------
-        int
-            DORT ``IZM``.
-        """
         return self._zone_data.izm
 
     @property
+    def isctm(self) -> int:
+        return self.model.materials.legendre_order
+
+    @property
+    def external_mixtures_enabled(self) -> bool:
+        return len(self.model.mixtures) > 0
+
+    @property
     def zones(self) -> tuple[ZoneDefinition, ...]:
-        """Return generated zone definitions.
-        
-        Returns
-        -------
-        tuple of ZoneDefinition
-            Zones in zone-number order.
-        """
         return self._zone_data.zones
 
     @property
     def zone_map(self) -> np.ndarray:
-        """Return the generated fine-space zone map.
-        
+        return self._zone_data.zone_map.copy()
+
+    def create_source(self, *, background: float = 0.0):
+        """Create a fixed-source builder tied to this writer's final mesh/zones.
+
+        The returned :class:`source.FixedSource` can select source cells by
+        material name, final region name, generated DORT zone number, or an
+        explicit R-Z mesh interval.  Its energy spectrum may be loaded from a
+        separate file and serialized as DORT cards 96** and 98**.
+        """
+        from source import FixedSource
+
+        return FixedSource.from_writer(self, background=background)
+
+    def create_run_control(
+        self,
+        mode: str,
+        *,
+        energy_groups: int,
+        quadrature_directions: int,
+        neutron_groups: int | None = None,
+        **kwargs,
+    ):
+        """Create a high-level run-control profile for this writer.
+
+        Parameters
+        ----------
+        mode
+            ``"eigenvalue_first"``, ``"eigenvalue_rerun"`` or
+            ``"fixed_source"``.
+        energy_groups
+            Number of energy groups (``IGM``).
+        quadrature_directions
+            Maximum number of angular directions (``MM``).
+        neutron_groups
+            Optional local-DORT ``NEUT`` tail value.
+        **kwargs
+            Human-readable run settings or advanced options accepted by
+            :meth:`run_control.DORTRunControl.from_writer`.  Examples include
+            ``maximum_outer_iterations=20``, ``left_boundary="reflected"``
+            and ``flux_extrapolation="theta_weighted"``.
+
         Returns
         -------
-        numpy.ndarray
-            Integer array with shape ``(JM, IM)``.
+        run_control.DORTRunControl
+            Configured run-control object with 61$$/62$$/63** generation and
+            93*..98* card validation.
         """
-        return self._zone_data.zone_map.copy()
+        from run_control import DORTRunControl
+
+        return DORTRunControl.from_writer(
+            self,
+            mode=mode,
+            energy_groups=energy_groups,
+            quadrature_directions=quadrature_directions,
+            neutron_groups=neutron_groups,
+            **kwargs,
+        )
+
+    @property
+    def required_file_units(self) -> dict[str, int]:
+        """Known ``61$`` file-unit requirement for the local mixture workflow."""
+        return {"NTSIG": self.cross_section_unit}
 
     @property
     def required_control_values(self) -> dict[str, int]:
-        """Return geometry-related control values that must agree with DORT ``62$``.
-        
-        Returns
-        -------
-        dict of str to int
-            Mapping containing ``IZM``, ``IM``, ``JM``, and ``INGEOM=1``.
+        """Control values that can be inferred safely for DORT ``62$``.
+
+        ``MIXL``, ``MTP`` and ``MTM`` are deliberately not inferred here.
+        The local DORT modification reads the externally prepared ``mixf.cr``
+        differently from the stock in-core mixing workflow.
         """
-        return {"IZM": self.izm, "IM": self.im, "JM": self.jm, "INGEOM": 1}
+        return {
+            "ISCTM": self.isctm,
+            "IZM": self.izm,
+            "IM": self.im,
+            "JM": self.jm,
+            "INGEOM": 1,
+        }
 
     def _validate_material_numbers(self) -> None:
-        """Validate external material-number overrides.
-        
-        Returns
-        -------
-        None
-        
-        Raises
-        ------
-        KeyError
-            If an override refers to an unknown material.
-        TypeError
-            If an override is not an integer.
-        ValueError
-            If an override is zero.
-        """
         for name, number in self._material_numbers.items():
             if name not in self.model.materials:
                 raise KeyError(f"Unknown material in material_numbers: {name!r}.")
@@ -327,59 +276,87 @@ class DORTWriter:
                 raise TypeError(f"Material number for {name!r} must be an integer.")
             if number == 0:
                 raise ValueError(f"Material number for {name!r} cannot be zero.")
+            if name in self.model.mixtures:
+                raise ValueError(
+                    f"Material {name!r} already has an external mixture definition; "
+                    "its negative 9$ value is calculated automatically."
+                )
+
+    def _used_material_names(self) -> tuple[str, ...]:
+        material_map = self.model.material_name_map
+        return tuple(
+            material.name
+            for material in self.model.materials
+            if np.any(material_map == material.name)
+        )
+
+    def _validate_used_mixtures(self) -> None:
+        if not self.external_mixtures_enabled:
+            return
+        missing = [
+            name for name in self._used_material_names()
+            if name not in self.model.mixtures and name not in self._material_numbers
+        ]
+        if missing:
+            raise ValueError(
+                "External mixture mode is active, but these used materials have no "
+                f"mixture recipe or explicit material-number override: {missing}."
+            )
 
     def material_number(self, material_name: str) -> int:
-        """Return the DORT material number for a material name.
-        
-        Parameters
-        ----------
-        material_name : str
-            Registered material name.
-        
-        Returns
-        -------
-        int
-            Override value when supplied, otherwise the material's internal ID.
-        
-        Raises
-        ------
-        KeyError
-            If the material is not registered.
-        """
+        """Return the value written to DORT ``9$`` for a physical material."""
+        if material_name in self.model.mixtures:
+            return self.model.mixtures.dort_material_number(material_name, self.isctm)
         if material_name in self._material_numbers:
             return int(self._material_numbers[material_name])
-        return int(self.model.materials[material_name].dort_id)
+        # Fallback for simple non-mixture/legacy models.
+        return int(self.model.materials[material_name].material_id)
+
+    def material_table_numbers(self, material_name: str) -> tuple[int, ...]:
+        if material_name in self.model.mixtures:
+            return self.model.mixtures.table_numbers(material_name, self.isctm)
+        return ()
+
+    def material_layout(self) -> tuple[dict[str, object], ...]:
+        rows: list[dict[str, object]] = []
+        for material in self.model.materials:
+            rows.append(
+                {
+                    "material_id": material.material_id,
+                    "material": material.name,
+                    "legendre_order": material.legendre_order,
+                    "cross_section_tables": self.material_table_numbers(material.name),
+                    "dort_9_value": self.material_number(material.name),
+                }
+            )
+        return tuple(rows)
+
+    def _zone_definition(
+        self,
+        *,
+        zone_id: int,
+        owner: str,
+        material_name: str,
+        n_cells: int,
+    ) -> ZoneDefinition:
+        material = self.model.materials[material_name]
+        return ZoneDefinition(
+            zone_id=zone_id,
+            owner=owner,
+            material=material_name,
+            material_id=material.material_id,
+            material_number=self.material_number(material_name),
+            legendre_order=material.legendre_order,
+            cross_section_tables=self.material_table_numbers(material_name),
+            n_cells=n_cells,
+        )
 
     def _build_zone_data(self) -> ZoneData:
-        """Construct zone data according to the configured zone policy.
-        
-        Returns
-        -------
-        ZoneData
-            Generated zone map and definitions.
-        """
-        if self.zone_policy == "material":
-            return self._build_material_zones()
-        return self._build_region_zones()
+        return self._build_material_zones() if self.zone_policy == "material" else self._build_region_zones()
 
     def _build_region_zones(self) -> ZoneData:
-        """Construct one DORT zone per final geometric owner.
-        
-        Returns
-        -------
-        ZoneData
-            Region-based zone data.
-        
-        Raises
-        ------
-        ValueError
-            If unfilled cells or inconsistent material assignments are detected.
-        RuntimeError
-            If an internal zone assignment is incomplete.
-        """
         owner_map = self.model.region_map
         material_map = self.model.material_name_map
-
         if np.any(owner_map == ""):
             raise ValueError("Cannot generate DORT input while unfilled cells exist.")
 
@@ -392,7 +369,6 @@ class DORTWriter:
 
         zone_map = np.zeros(owner_map.shape, dtype=int)
         zones: list[ZoneDefinition] = []
-
         for zone_id, owner in enumerate(owners, start=1):
             mask = owner_map == owner
             if owner == "background":
@@ -408,35 +384,19 @@ class DORTWriter:
 
             zone_map[mask] = zone_id
             zones.append(
-                ZoneDefinition(
+                self._zone_definition(
                     zone_id=zone_id,
                     owner=owner,
-                    material=material_name,
-                    material_number=self.material_number(material_name),
+                    material_name=material_name,
                     n_cells=int(np.count_nonzero(mask)),
                 )
             )
 
         if np.any(zone_map == 0):
             raise RuntimeError("Some filled cells were not assigned a DORT zone.")
-
         return ZoneData(zone_map=zone_map, zones=tuple(zones))
 
     def _build_material_zones(self) -> ZoneData:
-        """Construct one DORT zone per material actually used.
-        
-        Returns
-        -------
-        ZoneData
-            Material-based zone data.
-        
-        Raises
-        ------
-        ValueError
-            If unfilled cells are present.
-        RuntimeError
-            If any cell remains without a generated zone.
-        """
         material_map = self.model.material_name_map
         if np.any(material_map == ""):
             raise ValueError("Cannot generate DORT input while unfilled cells exist.")
@@ -444,140 +404,153 @@ class DORTWriter:
         used = [m.name for m in self.model.materials if np.any(material_map == m.name)]
         zone_map = np.zeros(material_map.shape, dtype=int)
         zones: list[ZoneDefinition] = []
-
         for zone_id, material_name in enumerate(used, start=1):
             mask = material_map == material_name
             zone_map[mask] = zone_id
             zones.append(
-                ZoneDefinition(
+                self._zone_definition(
                     zone_id=zone_id,
                     owner=f"material:{material_name}",
-                    material=material_name,
-                    material_number=self.material_number(material_name),
+                    material_name=material_name,
                     n_cells=int(np.count_nonzero(mask)),
                 )
             )
 
         if np.any(zone_map == 0):
             raise RuntimeError("Some cells were not assigned a DORT zone.")
-
         return ZoneData(zone_map=zone_map, zones=tuple(zones))
 
     def ijzn_stream(self) -> np.ndarray:
-        """Return the expanded DORT ``8$`` zone stream.
-        
-        Returns
-        -------
-        numpy.ndarray
-            One-dimensional integer array of length ``IM * JM``.
-        
-        Notes
-        -----
-        R/I varies fastest and Z/J varies slowest. This is equivalent to
-        ``zone_map.ravel(order='C')`` for the project's ``(JM, IM)`` map layout.
-        """
         stream = self._zone_data.zone_map.ravel(order="C")
         if stream.size != self.im * self.jm:
             raise RuntimeError("Internal 8$ length mismatch.")
         return stream.copy()
 
     def izmt_stream(self) -> np.ndarray:
-        """Return the expanded DORT ``9$`` zone-to-material stream.
-        
-        Returns
-        -------
-        numpy.ndarray
-            One integer material number per generated zone.
-        """
-        return np.asarray([z.material_number for z in self.zones], dtype=int)
+        """Expanded local-DORT ``9$`` stream; negative values are supported."""
+        stream = np.asarray([z.material_number for z in self.zones], dtype=int)
+        if np.any(stream == 0):
+            raise RuntimeError("DORT 9$ contains a zero material reference.")
+        return stream
+
+    def iznrg_identity_stream(self) -> np.ndarray:
+        return np.arange(1, self.izm + 1, dtype=int)
+
+    def iznrg_material_stream(self) -> np.ndarray:
+        return np.asarray([z.material_id for z in self.zones], dtype=int)
 
     def array2(self) -> str:
-        """Generate DORT ``2*`` containing Z fine-mesh boundaries.
-        
-        Returns
-        -------
-        str
-            FIDO-formatted ``2*`` array with ``JM + 1`` entries.
-        """
-        fields = [_format_real(v) for v in self.model.mesh.z.edges]
-        return _wrap_fields("2**", fields, width=self.line_width)
+        return _wrap_fields(
+            "2**", [_format_real(v) for v in self.model.mesh.z.edges], width=self.line_width
+        )
 
     def array4(self) -> str:
-        """Generate DORT ``4*`` containing R fine-mesh boundaries.
-        
-        Returns
-        -------
-        str
-            FIDO-formatted ``4*`` array with ``IM + 1`` entries.
-        """
-        fields = [_format_real(v) for v in self.model.mesh.r.edges]
-        return _wrap_fields("4**", fields, width=self.line_width)
+        return _wrap_fields(
+            "4**", [_format_real(v) for v in self.model.mesh.r.edges], width=self.line_width
+        )
 
     def array8(self) -> str:
-        """Generate DORT ``8$`` containing zone number by fine-space cell.
-        
-        Returns
-        -------
-        str
-            FIDO-formatted zone map.
-        
-        Notes
-        -----
-        Repeated values within a radial row are compressed with ``R`` clauses.
-        Repeated complete radial rows are compressed with ``Q`` clauses.
-        """
         lines: list[str] = []
         j = 0
         group_index = 0
-
         while j < self.jm:
             row = self._zone_data.zone_map[j, :]
             fields = _rle_row(row)
-
             repeats = 0
             k = j + 1
             while k < self.jm and np.array_equal(self._zone_data.zone_map[k, :], row):
                 repeats += 1
                 k += 1
-
             if repeats:
                 fields.append(f"{repeats}Q {self.im}")
 
             origin = "8$$" if group_index == 0 else "    "
             lines.extend(_wrap_fields(origin, fields, width=self.line_width).splitlines())
-
             group_index += 1
             j = k
-
         return "\n".join(lines)
 
     def array9(self) -> str:
-        """Generate DORT ``9$`` mapping material zone to material number.
-        
-        Returns
-        -------
-        str
-            FIDO-formatted ``9$`` array with ``IZM`` entries.
+        """Generate local-DORT ``9$$`` material references.
+
+        External mixtures use negative references such as -1, -7 and -13 for
+        P5 mixtures 1, 2 and 3.
         """
-        fields = [str(int(v)) for v in self.izmt_stream()]
-        return _wrap_fields("9$$", fields, width=self.line_width)
+        return _wrap_fields(
+            "9$$", [str(int(v)) for v in self.izmt_stream()], width=self.line_width
+        )
+
+    def array61(
+        self,
+        *,
+        ntflx: int = 0,
+        ntfog: int = 0,
+        ntbsi: int = 0,
+        ntdsi: int = 0,
+        ntfci: int = 0,
+        ntibi: int = 0,
+        ntibo: int = 0,
+        ntnpr: int = 0,
+        ntdir: int = 0,
+        ntdso: int = 0,
+        ntscl: int = 0,
+        ntznf: int = 0,
+    ) -> str:
+        """Generate DORT ``61$$`` with ``NTSIG`` tied to ``mixf.cr`` unit 51.
+
+        ``NTSIG`` is the third entry and is taken from ``cross_section_unit``.
+        Other logical units default to zero and can be supplied explicitly.
+        """
+        values = [
+            ntflx,
+            ntfog,
+            self.cross_section_unit,
+            ntbsi,
+            ntdsi,
+            ntfci,
+            ntibi,
+            ntibo,
+            ntnpr,
+            ntdir,
+            ntdso,
+            ntscl,
+            ntznf,
+        ]
+        for value in values:
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError("All 61$ logical-unit values must be integers.")
+            if value < 0:
+                raise ValueError("61$ logical-unit values cannot be negative.")
+        return _wrap_fields(
+            "61$$", [str(value) for value in values] + ["E"], width=self.line_width
+        )
 
     def array84_identity(self) -> str:
-        """Generate an identity DORT ``84$`` edit-region mapping.
-        
-        Returns
-        -------
-        str
-            FIDO-formatted array in which edit-region number equals material-zone
-            number.
-        
-        Notes
-        -----
-        Use this helper only when one edit region per material zone is appropriate for
-        the intended calculation.
+        return _wrap_fields(
+            "84$$", [str(int(v)) for v in self.iznrg_identity_stream()], width=self.line_width
+        )
+
+    def array84_by_material(self) -> str:
+        return _wrap_fields(
+            "84$$", [str(int(v)) for v in self.iznrg_material_stream()], width=self.line_width
+        )
+
+    def mixture_cards_fragment(self) -> str:
+        """Return zone-aware ``84$$`` and ``9$$`` cards for the built model.
+
+        ``84$$`` groups edit regions by natural material/mixture ID, while
+        ``9$$`` contains the local negative cross-section references.  Unlike
+        the compact cards written by :meth:`MixtureRegistry.write_dort_mix_cards`,
+        this method remains correct when ``zone_policy='region'`` creates more
+        DORT zones than physical mixtures.
         """
-        fields = [str(i) for i in range(1, self.izm + 1)]
-        return _wrap_fields("84$$", fields, width=self.line_width)
+        return f"{self.array84_by_material()}\n{self.array9()}"
+
+    def write_mixture_cards(self, filename: str | Path) -> Path:
+        """Write zone-aware ``84$$``/``9$$`` cards for the current writer."""
+        path = Path(filename)
+        path.write_text(self.mixture_cards_fragment() + "\n", encoding="ascii")
+        return path
 
     def block4_geometry_material_fragment(
         self,
@@ -585,24 +558,10 @@ class DORTWriter:
         include_mesh: bool = True,
         terminate_block: bool = False,
     ) -> str:
-        """Return a paste-ready Block-4 geometry/material fragment.
-        
-        Parameters
-        ----------
-        include_mesh : bool, optional
-            Include ``2*`` and ``4*`` before ``8$`` and ``9$``.
-        terminate_block : bool, optional
-            Append a final ``T`` delimiter.
-        
-        Returns
-        -------
-        str
-            Multi-line FIDO fragment.
-        
-        Notes
-        -----
-        The block is not terminated by default because a real DORT Block 4 may contain
-        additional arrays after ``9$``.
+        """Return ``2*``, ``4*``, ``8$`` and ``9$`` for the local workflow.
+
+        No 10$/11$/12* arrays are generated because cross-section mixing is
+        performed externally before DORT execution.
         """
         parts: list[str] = []
         if include_mesh:
@@ -619,22 +578,6 @@ class DORTWriter:
         include_mesh: bool = True,
         terminate_block: bool = False,
     ) -> Path:
-        """Write the generated Block-4 fragment to disk.
-        
-        Parameters
-        ----------
-        filename : str or pathlib.Path
-            Output path.
-        include_mesh : bool, optional
-            Include ``2*`` and ``4*``.
-        terminate_block : bool, optional
-            Append a final ``T`` delimiter.
-        
-        Returns
-        -------
-        pathlib.Path
-            Path written.
-        """
         path = Path(filename)
         path.write_text(
             self.block4_geometry_material_fragment(
@@ -645,70 +588,89 @@ class DORTWriter:
         )
         return path
 
-    def zone_table_text(self) -> str:
-        """Return a human-readable generated-zone table.
-        
-        Returns
-        -------
-        str
-            Multi-line table containing zone ID, owner, material, DORT material number,
-            and cell count.
-        """
+    def material_layout_text(self) -> str:
         lines = [
-            "Zone  Owner                     Material                  Mat.No.    Cells",
-            "--------------------------------------------------------------------------",
+            "ID  Material                 P_L  mixf.cr tables      9$ value",
+            "----------------------------------------------------------------",
+        ]
+        for row in self.material_layout():
+            tables = row["cross_section_tables"]
+            if tables:
+                table_text = str(tables[0]) if len(tables) == 1 else f"{tables[0]}..{tables[-1]}"
+            else:
+                table_text = "--"
+            lines.append(
+                f"{int(row['material_id']):2d}  {str(row['material'])[:22]:22s} "
+                f"P{int(row['legendre_order']):<2d} {table_text:17s} "
+                f"{int(row['dort_9_value']):8d}"
+            )
+        return "\n".join(lines)
+
+    def zone_table_text(self) -> str:
+        lines = [
+            "Zone  Owner                     Material              ID  9$ value   Cells",
+            "----------------------------------------------------------------------------",
         ]
         for z in self.zones:
             lines.append(
-                f"{z.zone_id:4d}  {z.owner[:25]:25s} {z.material[:24]:24s} "
-                f"{z.material_number:7d} {z.n_cells:8d}"
+                f"{z.zone_id:4d}  {z.owner[:25]:25s} {z.material[:20]:20s} "
+                f"{z.material_id:3d} {z.material_number:9d} {z.n_cells:8d}"
             )
         return "\n".join(lines)
 
     def summary_text(self) -> str:
-        """Return a human-readable writer summary.
-        
-        Returns
-        -------
-        str
-            Geometry/control values, array lengths, and zone table suitable for
-            pre-run verification.
-        """
-        return "\n".join(
-            [
-                f"DORT writer summary for: {self.model.name}",
-                "",
-                "Required/consistent 62$ values:",
-                f"  IZM = {self.izm}",
-                f"  IM  = {self.im}",
-                f"  JM  = {self.jm}",
-                "  INGEOM = 1  (R-Z)",
-                "",
-                f"2* entries = {self.jm + 1}",
-                f"4* entries = {self.im + 1}",
-                f"8$ entries = {self.im * self.jm}",
-                f"9$ entries = {self.izm}",
-                "",
-                self.zone_table_text(),
-            ]
-        )
+        lines = [
+            f"DORT writer summary for: {self.model.name}",
+            "",
+            "Cross-section file link (61$):",
+            f"  NTSIG = {self.cross_section_unit}",
+            f"  file  = {self.cross_section_filename}",
+            "",
+            "62$ values inferred safely:",
+            f"  ISCTM = {self.isctm}",
+            f"  IZM   = {self.izm}",
+            f"  IM    = {self.im}",
+            f"  JM    = {self.jm}",
+            "  INGEOM = 1  (R-Z)",
+            "  MIXL/MTP/MTM: retain values required by the local modified-DORT template",
+            "",
+            "External mixture / material layout:",
+            self.material_layout_text(),
+            "",
+            f"2* entries = {self.jm + 1}",
+            f"4* entries = {self.im + 1}",
+            f"8$ entries = {self.im * self.jm}",
+            f"9$ entries = {self.izm}",
+            "",
+            self.zone_table_text(),
+        ]
+        return "\n".join(lines)
 
 
 if __name__ == "__main__":
     model = DORTModel("writer_demo")
-    for name in ("Sodium", "Core", "SS316", "Air"):
-        model.add_material(name)
+    model.add_mixture(
+        "Mixture-1",
+        {5125: 1.10597e-2, 5131: 8.27546e-3, 825: 2.90028e-2},
+        legendre_order=5,
+    )
+    model.add_mixture("Mixture-2", {425: 1.1107e-1})
+    model.add_mixture("Mixture-3", {725: 1.89693e-5, 825: 8.15551e-5})
 
     model.mesh.r.add_segment(0.0, 200.0, step=10.0)
     model.mesh.z.add_segment(-100.0, 100.0, step=10.0)
-    model.set_background("Sodium")
-
-    model.add_region("core", material="Core", r=(0.0, 100.0), z=(-50.0, 50.0), priority=20)
-    model.add_region("radial_shield", material="SS316", r=(100.0, 140.0), z=(-50.0, 50.0), priority=30)
-    model.add_region("penetration", material="Air", r=(80.0, 120.0), z=(-10.0, 10.0), priority=50)
+    model.set_background("Mixture-1")
+    model.add_region(
+        "inner", material="Mixture-2", r=(0.0, 100.0), z=(-50.0, 50.0), priority=20
+    )
+    model.add_region(
+        "shield", material="Mixture-3", r=(100.0, 140.0), z=(-50.0, 50.0), priority=30
+    )
     model.build()
 
-    writer = DORTWriter(model)
+    writer = DORTWriter(model, cross_section_unit=51)
+    print(writer.array61())
+    print()
     print(writer.summary_text())
     print()
     print(writer.block4_geometry_material_fragment())
