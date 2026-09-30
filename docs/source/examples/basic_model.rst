@@ -6,9 +6,8 @@ geometry/material fragment.
 
 .. code-block:: python
 
-   from model import DORTModel
-   from plotting import save_material_plot, save_region_plot
-   from writer import DORTWriter
+   from dort_input import DORTModel, DORTWriter
+   from dort_input.plotting import save_material_plot, save_region_plot
 
    model = DORTModel("simple_shield")
 

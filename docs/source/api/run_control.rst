@@ -1,7 +1,7 @@
 Run Control API
 ===============
 
-.. automodule:: run_control
+.. automodule:: dort_input.run_control
    :members:
    :undoc-members:
    :show-inheritance:

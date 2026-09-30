@@ -1,7 +1,7 @@
 DORT Writer
 ===========
 
-:class:`writer.DORTWriter` is the bridge between the built physical model and
+:class:`dort_input.writer.DORTWriter` is the bridge between the built physical model and
 DORT/FIDO input fragments.  Create it only after ``model.build()``.
 
 .. code-block:: python

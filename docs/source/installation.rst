@@ -4,61 +4,57 @@ Installation
 Requirements
 ------------
 
-Python 3.10 or newer is recommended.
+Python 3.10 or newer is required. NumPy, Matplotlib, pandas, and openpyxl are
+installed automatically when package dependencies can be obtained.
 
-The runtime dependencies are currently:
+Install the wheel
+-----------------
 
-* NumPy;
-* Matplotlib;
-* pandas — spreadsheet mixture-table import;
-* openpyxl — Excel ``.xlsx`` reader used by pandas.
-
-Install the repository requirements with:
+For normal use, install the supplied wheel:
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
+   python -m pip install dort_input-0.4.1-py3-none-any.whl
 
-Current import model
---------------------
-
-The repository is not yet packaged as an installable Python distribution.
-Run scripts from the repository root, or otherwise ensure that the repository
-root is on ``PYTHONPATH``.
-
-For example:
-
-.. code-block:: bash
-
-   python examples/comprehensive_mixture_spreadsheet.py
-
-Spreadsheet mixture input
--------------------------
-
-The example workbook is under ``examples/data/mixtures_example.xlsx``.  A
-normal project may keep its own workbook anywhere and pass the path to
-``model.load_mixtures_from_excel(...)`` or ``model.prepare_mixtures_from_excel(...)``.
-
-Documentation dependencies
+Install the source package
 --------------------------
 
-Install the documentation requirements with:
+After extracting the source ZIP, open a terminal in the ``DORT_Input`` folder:
 
 .. code-block:: bash
 
-   pip install -r docs/requirements.txt
+   python -m pip install .
 
-Build the documentation locally:
-
-.. code-block:: bash
-
-   cd docs
-   make html
-
-Behind a restricted proxy, use:
+Use an editable installation while changing examples or package code:
 
 .. code-block:: bash
 
-   DORT_DOCS_OFFLINE=1 make html
+   python -m pip install -e ".[test,docs]"
 
-The generated site is under ``docs/build/html/index.html``.
+Verify the installation
+-----------------------
+
+.. code-block:: bash
+
+   python -c "from dort_input import DORTModel; print('DORT package ready')"
+   dort-mixture --help
+
+Then run the first tutorial from the source repository:
+
+.. code-block:: bash
+
+   python examples/modeling_basics.py
+
+Network-restricted computers
+----------------------------
+
+The wheel contains the DORT input-preparation code but not its third-party
+dependencies. On an offline computer, install compatible NumPy, Matplotlib,
+pandas, and openpyxl wheels first, then install ``dort-input`` with:
+
+.. code-block:: bash
+
+   python -m pip install --no-deps dort_input-0.4.1-py3-none-any.whl
+
+The package does not bundle the DORT executable, the microscopic cross-section
+library, or the external ``m_ia_oa.for`` mixer.

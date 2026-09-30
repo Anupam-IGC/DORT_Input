@@ -1,0 +1,5 @@
+include README.md
+recursive-include docs *.py *.rst *.css *.txt Makefile make.bat
+recursive-include examples *.py *.xlsx
+recursive-include tests *.py
+

@@ -1,7 +1,6 @@
 """Example: fixed-source spatial distribution from an existing DORT model."""
 
-from model import DORTModel
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter
 
 model = DORTModel("fixed_source_demo")
 model.add_mixture("Sodium", {1125: 2.5e-2}, legendre_order=5)
@@ -24,7 +23,8 @@ writer = DORTWriter(model, cross_section_unit=51)
 # Use a tiny non-zero background, matching the style of the verified local deck.
 source = writer.create_source(background=1.0e-20)
 source.by_region("fuel_region", strength=1.0)
-source.set_energy_spectrum_file("source_spectrum.txt")
+# A flat 217-group spectrum keeps this focused example self-contained.
+source.set_energy_spectrum([1.0] * 217, normalize=True)
 
 run = writer.create_run_control(
     "fixed_source",

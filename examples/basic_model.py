@@ -7,16 +7,11 @@ Run from the repository root:
 """
 
 from pathlib import Path
-import sys
 
-# Allow this example to run directly from the examples/ directory.
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from model import DORTModel
-from plotting import save_material_plot, save_region_plot
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter
+from dort_input.plotting import save_material_plot, save_region_plot
 
 
 def main() -> None:

@@ -9,7 +9,7 @@ Material map
 
 .. code-block:: python
 
-   from plotting import plot_materials
+   from dort_input.plotting import plot_materials
 
    fig, ax = plot_materials(
        model,
@@ -37,7 +37,7 @@ Region map
 
 .. code-block:: python
 
-   from plotting import plot_regions
+   from dort_input.plotting import plot_regions
 
    fig, ax = plot_regions(
        model,
@@ -52,7 +52,7 @@ Convenience save functions
 
 .. code-block:: python
 
-   from plotting import (
+   from dort_input.plotting import (
        save_material_plot,
        save_region_plot,
    )

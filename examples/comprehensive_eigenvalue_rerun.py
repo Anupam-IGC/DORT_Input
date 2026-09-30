@@ -11,15 +11,10 @@ Run from the repository root:
 """
 
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from model import DORTModel
-from quadrature import generate_legacy_quadrature
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter, generate_legacy_quadrature
 
 
 def build_model() -> DORTModel:

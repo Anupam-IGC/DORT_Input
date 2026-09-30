@@ -2,15 +2,16 @@ from pathlib import Path
 import os
 import sys
 
-# The project is currently a collection of top-level Python modules rather than
-# an installed package. Add the repository root so autodoc can import them.
+# Allow local documentation builds without requiring a prior installation.
 REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "src"))
 
-project = "DORT R-Z Input Preparation API"
+from dort_input import __version__
+
+project = "DORT R-Z Input Preparation"
 author = "Anupam Chakraborty"
 copyright = "2026, Anupam Chakraborty"
-release = "0.2.0"
+release = __version__
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -37,7 +38,7 @@ templates_path = []
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "sphinx_rtd_theme"
-html_title = "DORT Input Preparation API"
+html_title = "DORT Input and Output Guide"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_show_sourcelink = False

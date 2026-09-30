@@ -11,7 +11,7 @@ For routine calculations, start from the standard mixture workbook:
 
 .. code-block:: python
 
-   from model import DORTModel
+   from dort_input import DORTModel
 
    model = DORTModel("demo")
 
@@ -65,7 +65,7 @@ writes ``mix.inp``, ``Mixture_Names.txt``, and ``dort_mix_cards.txt``.
 
 .. code-block:: python
 
-   from writer import DORTWriter
+   from dort_input import DORTWriter
 
    writer = DORTWriter(
        model,

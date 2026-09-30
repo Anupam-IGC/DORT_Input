@@ -67,7 +67,7 @@ Load the workbook and generate the three preparation files in one call:
 
 .. code-block:: python
 
-   from model import DORTModel
+   from dort_input import DORTModel
 
    model = DORTModel("shield_model")
 
@@ -209,7 +209,7 @@ from the writer instead:
 
 .. code-block:: python
 
-   from writer import DORTWriter
+   from dort_input import DORTWriter
 
    writer = DORTWriter(model, zone_policy="region")
    print(writer.array84_by_material())
@@ -223,18 +223,18 @@ reference for every generated DORT zone.
 Command-line workflow
 ---------------------
 
-The top-level ``mixture.py`` script is now an API-backed command-line front end.
-The old defaults are preserved:
+The installed package provides the API-backed ``dort-mixture`` command. The
+original defaults are preserved:
 
 .. code-block:: bash
 
-   python mixture.py mixtures.xlsx
+   dort-mixture mixtures.xlsx
 
 Equivalent explicit use is:
 
 .. code-block:: bash
 
-   python mixture.py mixtures.xlsx \
+   dort-mixture mixtures.xlsx \
        --sheet Read \
        --order 5 \
        --output-dir mixture_output
@@ -243,7 +243,7 @@ If ``mixf.cr`` has already been generated, it can also be checked:
 
 .. code-block:: bash
 
-   python mixture.py mixtures.xlsx \
+   dort-mixture mixtures.xlsx \
        --order 5 \
        --validate mixf.cr
 
@@ -298,8 +298,8 @@ For P5 with six mixtures the validator expects 36 sequential tables.
 Dependencies
 ------------
 
-Spreadsheet import uses ``pandas`` with ``openpyxl``.  Both are included in the
-updated project ``requirements.txt``.
+Spreadsheet import uses ``pandas`` with ``openpyxl``. Both are installed as
+package dependencies.
 
 .. seealso::
 

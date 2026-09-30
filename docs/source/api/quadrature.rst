@@ -1,7 +1,7 @@
 Quadrature API
 ==============
 
-.. automodule:: quadrature
+.. automodule:: dort_input.quadrature
    :members:
    :undoc-members:
    :show-inheritance:

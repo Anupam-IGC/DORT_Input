@@ -3,7 +3,7 @@ Quadrature Plotting API
 
 Visualization helpers for inspecting small and high-order DORT quadrature sets.
 
-.. automodule:: quadrature_plotting
+.. automodule:: dort_input.quadrature_plotting
    :members:
    :undoc-members:
    :show-inheritance:

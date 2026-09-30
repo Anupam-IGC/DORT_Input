@@ -1,7 +1,7 @@
 Fixed Source API
 ================
 
-.. automodule:: source
+.. automodule:: dort_input.source
    :members:
    :undoc-members:
    :show-inheritance:

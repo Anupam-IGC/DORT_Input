@@ -62,7 +62,8 @@ By generated DORT zone
 
    source.by_zone({3: 1.0, 4: 0.5})
 
-This requires the source to be created from :class:`writer.DORTWriter`.
+This requires the source to be created from
+:class:`dort_input.writer.DORTWriter`.
 
 By R-Z mesh interval
 ~~~~~~~~~~~~~~~~~~~~
@@ -107,7 +108,7 @@ Arbitrary spatial functions
    )
 
 A complete NumPy array may also be supplied with
-:meth:`source.FixedSource.set_spatial_array`.
+:meth:`dort_input.source.FixedSource.set_spatial_array`.
 
 Energy spectrum from file
 -------------------------

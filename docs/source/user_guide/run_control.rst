@@ -46,7 +46,8 @@ Create a profile
        flux_extrapolation="theta_weighted",
    )
 
-Change settings later with :meth:`run_control.DORTRunControl.configure`:
+Change settings later with
+:meth:`dort_input.run_control.DORTRunControl.configure`:
 
 .. code-block:: python
 

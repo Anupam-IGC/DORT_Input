@@ -8,15 +8,11 @@ Outputs are written to ``example_output/geometry``.
 """
 
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from model import DORTModel
-from plotting import plot_materials, plot_regions
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter
+from dort_input.plotting import plot_materials, plot_regions
 
 
 def main() -> None:
@@ -59,20 +55,20 @@ def main() -> None:
         priority=30,
     )
 
-    # Axial shields.
+    # Axial shields intentionally override the radial shield in corner cells.
     model.add_region(
         "lower_shield",
         material="Shield",
         r=(0.0, 120.0),
         z=(-100.0, -50.0),
-        priority=30,
+        priority=40,
     )
     model.add_region(
         "upper_shield",
         material="Shield",
         r=(0.0, 120.0),
         z=(50.0, 100.0),
-        priority=30,
+        priority=40,
     )
 
     # A penetration deliberately overlaps other regions and wins by priority.

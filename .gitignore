@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+.pytest_cache/
+.coverage
+.ruff_cache/
 
 # Virtual environments
 .venv/
@@ -21,7 +24,9 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+*.whl
 
 # Example/generated outputs
 example_output/
+quadrature_output/
 *.png

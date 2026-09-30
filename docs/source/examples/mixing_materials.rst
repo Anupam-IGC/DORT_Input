@@ -5,7 +5,7 @@ This reproduces the supplied three-mixture sample input.
 
 .. code-block:: python
 
-   from model import DORTModel
+   from dort_input import DORTModel
 
    model = DORTModel("mixture_sample")
 

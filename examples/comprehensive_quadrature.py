@@ -6,14 +6,11 @@ Run from the repository root:
 """
 
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from quadrature import generate_legacy_quadrature, generate_product_quadrature
-from quadrature_plotting import plot_quadrature_set
+from dort_input import generate_legacy_quadrature, generate_product_quadrature
+from dort_input.quadrature_plotting import plot_quadrature_set
 
 
 def main() -> None:

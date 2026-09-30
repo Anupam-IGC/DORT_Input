@@ -1,6 +1,6 @@
 import numpy as np
 
-from quadrature import (
+from dort_input import (
     generate_legacy_quadrature,
     generate_product_quadrature,
 )
@@ -110,3 +110,21 @@ def test_dort_output_contains_all_arrays() -> None:
     assert "82**" in text
     assert "83**" in text
     assert "81**" in text
+
+
+def test_s16_half_quadrature_has_exactly_mm_fields_per_array() -> None:
+    quadrature = generate_legacy_quadrature(order=16, symmetry="half")
+    text = quadrature.dort_text()
+    arrays = {
+        82: text.split("82**", 1)[1].split("83**", 1)[0],
+        83: text.split("83**", 1)[1].split("81**", 1)[0],
+        81: text.split("81**", 1)[1],
+    }
+    assert quadrature.direction_count == 160
+    for array in arrays.values():
+        fields = array.split()
+        assert len(fields) == 160
+        assert all(field.lower() not in {"t", "e"} for field in fields)
+        for field in fields:
+            float(field)
+    assert max(map(len, text.splitlines())) <= 72

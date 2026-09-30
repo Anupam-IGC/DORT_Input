@@ -1,7 +1,6 @@
 """Illustrate human-readable DORT run-control settings."""
 
-from model import DORTModel
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter
 
 model = DORTModel("run_mode_demo")
 model.add_mixture("Material-1", {425: 1.0e-2}, legendre_order=5)

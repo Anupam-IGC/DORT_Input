@@ -1,7 +1,6 @@
 """Reproduce the supplied mix.inp and local DORT mixture references."""
 
-from model import DORTModel
-from writer import DORTWriter
+from dort_input import DORTModel, DORTWriter
 
 
 model = DORTModel("external_mixture_sample")

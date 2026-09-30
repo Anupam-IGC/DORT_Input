@@ -3,7 +3,7 @@ Regions API
 
 R-Z region definitions and mask generation.
 
-.. automodule:: regions
+.. automodule:: dort_input.regions
    :members:
    :undoc-members:
    :show-inheritance:

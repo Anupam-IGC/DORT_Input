@@ -19,7 +19,7 @@ For geometry-only work, register a material directly:
    )
 
 For the verified local external-mixture workflow, the more convenient route is
-:meth:`model.DORTModel.add_mixture`.  It creates the geometry-facing material
+:meth:`dort_input.model.DORTModel.add_mixture`. It creates the geometry-facing material
 and the external mixing recipe together:
 
 .. code-block:: python
